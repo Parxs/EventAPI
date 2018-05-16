@@ -30,6 +30,14 @@ public class ArtistService {
 	public int createArtist(String name, int age, String genre) {
 		return artistRepository.createArtist(name, age, genre);
 	}
+	
+	public boolean updateArtist(int id, String name, int age, String genre) {
+		return artistRepository.updateArtist(id,name, age, genre);
+	}
+	
+	public boolean deleteArtist(int id) {
+		return artistRepository.deleteArtist(id);
+	}
 
 	public GenericList<Artist> searchForArtist(String name, int age, String genre) {
 		List<Artist> searchForArtist = artistRepository.searchForArtist(name, age, genre);

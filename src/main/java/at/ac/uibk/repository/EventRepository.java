@@ -61,6 +61,7 @@ public class EventRepository {
 	}
 	
 	public boolean updateEvent(int id, String title, String description, String startTime, int venueId, int artistId) {
+		this.events.remove(this.getEvent(id));
 		Event event = new Event(id, title, description, startTime, venueId, artistId);
 		events.add(event);
 		return true;

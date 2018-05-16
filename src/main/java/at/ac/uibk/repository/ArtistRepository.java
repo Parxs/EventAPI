@@ -45,7 +45,19 @@ public class ArtistRepository {
 		Artist artist = new Artist(id, name, age, genre);
 		artists.add(artist);
 	}
+	
+	public boolean updateArtist(int id, String name, int age, String genre) {
+		this.artists.remove(this.getArtist(id));
+		Artist artist = new Artist(id, name, age, genre);
+		artists.add(artist);
+		return true;
+	}
 
+	public boolean deleteArtist(int id) {
+		this.artists.remove(this.getArtist(id));
+		return true;
+	}
+	
 	public int createArtist(String name, int age, String genre) {
 
 		Artist artist = new Artist(currentId, name, age, genre);

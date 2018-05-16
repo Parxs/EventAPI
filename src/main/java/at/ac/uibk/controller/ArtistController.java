@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -62,17 +63,21 @@ public class ArtistController {
 		return new ResponseEntity<>(eventsOfArtist, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/artists/{id}") // , method = RequestMethod.GET)
-	public HttpEntity<Artist> getArtist(@PathVariable("id") int id) {
+	@RequestMapping(value = "/artists/{id}", method = RequestMethod.GET)
+	public HttpEntity<ResourceSupport> getArtist(@PathVariable("id") int id) {
 
 		Artist artist = artistService.getArtist(id);
+		if(artist == null) {
+			Navigation eventError = new Navigation("Artist not found");
+			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
+		}
 		artist.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
 		artist.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withSelfRel());
 
 		return new ResponseEntity<>(artist, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/artists/new") // , method = RequestMethod.POST)
+	@RequestMapping(value = "/artists", method = RequestMethod.POST)
 	public HttpEntity<Navigation> createArtist(
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
 			@RequestParam(value = "age", required = true, defaultValue = "") int age,
@@ -95,7 +100,47 @@ public class ArtistController {
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
+	
+	@RequestMapping(value = "/artists/{id}", method = RequestMethod.PUT)
+	public HttpEntity<Navigation> updateArtist(
+			@PathVariable("id") int id,
+			@RequestParam(value = "name", required = true, defaultValue = "") String name,
+			@RequestParam(value = "age", required = true, defaultValue = "") int age,
+			@RequestParam(value = "genre", required = true, defaultValue = "") String genre) {
 
+		Navigation navi = new Navigation();
+		boolean ok = artistService.updateArtist(id, name, age, genre);
+		if (ok) {
+			navi.setContent("Artist updated");
+			addStandardNavigation(navi);
+			navi.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withSelfRel());
+			navi.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
+
+			return new ResponseEntity<>(navi, HttpStatus.OK);
+		} else {
+			navi.setContent("Failed to update Artist");
+			addStandardNavigation(navi);
+			navi.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
+
+			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+
+	@RequestMapping(value = "/artists/{id}", method = RequestMethod.DELETE)
+	public HttpEntity<ResourceSupport> deleteArtist(@PathVariable("id") int id) {
+
+		boolean ok = artistService.deleteArtist(id);
+		if(!ok) {
+			Navigation eventError = new Navigation("Artist not found");
+			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
+		}
+		Navigation navi = new Navigation("Artist " + id + " was deleted");
+		navi.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
+		navi.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withSelfRel());
+
+		return new ResponseEntity<>(navi, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/artists/search")
 	public HttpEntity<GenericList<Artist>> searchForArtist(
 			@RequestParam(value = "name", required = false, defaultValue = "") String name,
