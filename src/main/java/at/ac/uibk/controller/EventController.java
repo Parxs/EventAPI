@@ -34,20 +34,6 @@ public class EventController {
 	@Autowired
 	private VenueService venueService;
 
-	@RequestMapping("/init")
-	public HttpEntity<Boolean> init() {
-		// artistService.createArtist(0, "Informatixs", 30, "House, HipHop");
-		// artistService.createArtist(1, "Acapella", 67, "Rock");
-		// revenueService.createRevenue(0, "StadtSaal", "Austria", "Innsbruck", "AbcdWeg
-		// 12", "40 Personen");
-		// revenueService.createRevenue(1, "Baumhaus", "Deutschland", "Hamburg",
-		// "StrassenWeg 89", "4000 Personen");
-		// eventService.createEvent(0, "FarmersMarket", "Fresh beets?!", "18:00", 0, 0);
-		// eventService.createEvent(0, "Klangkonzert", "Viva la Voice", "18:00", 1, 1);
-
-		return new ResponseEntity<>(true, HttpStatus.OK);
-	}
-
 	private void addStandardNavigation(Navigation navi) {
 		navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
 		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
@@ -58,7 +44,7 @@ public class EventController {
 	public HttpEntity<ResourceSupport> getEvents(@PathVariable("id") int id) {
 
 		Event event = eventService.getEvent(id);
-		if(event == null) {
+		if (event == null) {
 			Navigation eventError = new Navigation("Event not found");
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 
@@ -69,24 +55,25 @@ public class EventController {
 
 		return new ResponseEntity<>(event, HttpStatus.OK);
 	}
+
 	@RequestMapping(value = "/events/{id}", method = RequestMethod.DELETE)
 	public HttpEntity<Navigation> deleteEvents(@PathVariable("id") int id) {
 		boolean ok = eventService.deleteEvent(id);
-		if(!ok) {
+		if (!ok) {
 			Navigation navi = new Navigation("Event " + id + " not found");
 			return new ResponseEntity<>(navi, HttpStatus.NOT_FOUND);
 
-		}else {
+		} else {
 			Navigation navi = new Navigation("Event " + id + " deleted");
 			navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
 			navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
 					.withSelfRel());
-	
+
 			return new ResponseEntity<>(navi, HttpStatus.OK);
 		}
 	}
-	
-	@RequestMapping( value = "/events", method = RequestMethod.POST)
+
+	@RequestMapping(value = "/events", method = RequestMethod.POST)
 	public HttpEntity<Navigation> createEvent(
 			@RequestParam(value = "title", required = true, defaultValue = "") String title,
 			@RequestParam(value = "description", required = true, defaultValue = "") String description,
@@ -109,10 +96,9 @@ public class EventController {
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
-	
-	@RequestMapping( value = "/events/{id}", method = RequestMethod.PUT)
-	public HttpEntity<Navigation> updateEvent(
-			@PathVariable("id") int id,
+
+	@RequestMapping(value = "/events/{id}", method = RequestMethod.PUT)
+	public HttpEntity<Navigation> updateEvent(@PathVariable("id") int id,
 			@RequestParam(value = "title", required = true, defaultValue = "") String title,
 			@RequestParam(value = "description", required = true, defaultValue = "") String description,
 			@RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
@@ -120,7 +106,7 @@ public class EventController {
 			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId) {
 
 		Navigation navi = new Navigation();
-		boolean ok = eventService.updateEvent(id,title, description, startTime, venueId, artistId);
+		boolean ok = eventService.updateEvent(id, title, description, startTime, venueId, artistId);
 		if (ok) {
 			navi.setContent("Event updated");
 			addStandardNavigation(navi);
@@ -134,9 +120,8 @@ public class EventController {
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
-	
 
-	@RequestMapping("/events/{id}/artist")
+	@RequestMapping(value = "/events/{id}/artists", method = RequestMethod.GET)
 	public HttpEntity<Artist> getArtistForEvents(@PathVariable("id") int id) {
 
 		Artist a = eventService.getArtistsOfEvent(id);
@@ -147,8 +132,8 @@ public class EventController {
 
 		return new ResponseEntity<>(a, HttpStatus.OK);
 	}
-	
-	@RequestMapping("/events/{id}/venue")
+
+	@RequestMapping(value = "/events/{id}/venues", method = RequestMethod.GET)
 	public HttpEntity<Venue> getVenueForEvents(@PathVariable("id") int id) {
 
 		Venue r = eventService.getVenueOfEvent(id);
@@ -159,7 +144,7 @@ public class EventController {
 
 		return new ResponseEntity<>(r, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/events", method = RequestMethod.GET)
 	public HttpEntity<Navigation> getEvents() {
 
@@ -174,7 +159,7 @@ public class EventController {
 
 		return new ResponseEntity<>(navi, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/events/search")
 	public HttpEntity<GenericList<Event>> searchForEvents(
 			@RequestParam(value = "name", required = false, defaultValue = "") String name,
@@ -183,7 +168,8 @@ public class EventController {
 
 		GenericList<Event> searchForEvents = eventService.searchEvent(name, artistName, venueName);
 		searchForEvents.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
-		searchForEvents.add(linkTo(methodOn(EventController.class).searchForEvents(name, artistName, venueName)).withSelfRel());
+		searchForEvents.add(
+				linkTo(methodOn(EventController.class).searchForEvents(name, artistName, venueName)).withSelfRel());
 		if (searchForEvents != null) {
 			for (Event event : searchForEvents.getList()) {
 				searchForEvents

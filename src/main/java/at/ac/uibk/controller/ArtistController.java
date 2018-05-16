@@ -35,7 +35,7 @@ public class ArtistController {
 		rs.add(linkTo(methodOn(ArtistController.class).searchForArtist("name", 18, "genre")).withSelfRel());
 	}
 
-	@RequestMapping(value = "/artists")
+	@RequestMapping(value = "/artists", method = RequestMethod.GET)
 	public HttpEntity<Navigation> getArtists() {
 
 		Navigation navi = new Navigation("Operations for Artists");
@@ -51,7 +51,7 @@ public class ArtistController {
 		return new ResponseEntity<>(navi, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/artists/{id}/events")
+	@RequestMapping(value = "/artists/{id}/events", method = RequestMethod.GET)
 	public HttpEntity<GenericList<Event>> getAllEvents(@PathVariable("id") int id) {
 
 		GenericList<Event> eventsOfArtist = artistService.getEventsOfArtist(id);
@@ -67,7 +67,7 @@ public class ArtistController {
 	public HttpEntity<ResourceSupport> getArtist(@PathVariable("id") int id) {
 
 		Artist artist = artistService.getArtist(id);
-		if(artist == null) {
+		if (artist == null) {
 			Navigation eventError = new Navigation("Artist not found");
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 		}
@@ -100,10 +100,9 @@ public class ArtistController {
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
-	
+
 	@RequestMapping(value = "/artists/{id}", method = RequestMethod.PUT)
-	public HttpEntity<Navigation> updateArtist(
-			@PathVariable("id") int id,
+	public HttpEntity<Navigation> updateArtist(@PathVariable("id") int id,
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
 			@RequestParam(value = "age", required = true, defaultValue = "") int age,
 			@RequestParam(value = "genre", required = true, defaultValue = "") String genre) {
@@ -130,7 +129,7 @@ public class ArtistController {
 	public HttpEntity<ResourceSupport> deleteArtist(@PathVariable("id") int id) {
 
 		boolean ok = artistService.deleteArtist(id);
-		if(!ok) {
+		if (!ok) {
 			Navigation eventError = new Navigation("Artist not found");
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 		}
@@ -140,8 +139,8 @@ public class ArtistController {
 
 		return new ResponseEntity<>(navi, HttpStatus.OK);
 	}
-	
-	@RequestMapping(value = "/artists/search")
+
+	@RequestMapping(value = "/artists/search", method = RequestMethod.GET)
 	public HttpEntity<GenericList<Artist>> searchForArtist(
 			@RequestParam(value = "name", required = false, defaultValue = "") String name,
 			@RequestParam(value = "age", required = false, defaultValue = "-1") int age,
