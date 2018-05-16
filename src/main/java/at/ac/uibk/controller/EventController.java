@@ -5,6 +5,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,12 @@ import at.ac.uibk.service.RevenueService;
 
 @RestController
 public class EventController {
-
-	private EventService eventService = new EventService();
-	private ArtistService artistService = new ArtistService();
-	private RevenueService revenueService = new RevenueService();
+	@Autowired
+	private EventService eventService;
+	@Autowired
+	private ArtistService artistService;
+	@Autowired
+	private RevenueService revenueService;
 
 	@RequestMapping("/init")
 	public HttpEntity<Boolean> init() {

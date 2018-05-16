@@ -5,6 +5,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,8 @@ import at.ac.uibk.service.ArtistService;
 @RestController
 public class ArtistController {
 
-	private ArtistService artistService = new ArtistService();
+	@Autowired
+	private ArtistService artistService;
 
 	private void addStandardNavigation(Navigation navi) {
 		navi.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withSelfRel());

@@ -3,19 +3,18 @@ package at.ac.uibk.repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import at.ac.uibk.model.Artist;
 
 // TODO use real data and db
+@Service("ArtistRepository")
 public class ArtistRepository {
 
 	ArrayList<Artist> artists = new ArrayList<>();
 
 	// TODO threadsafe solution
 	private int currentId = 100;
-
-	public ArtistRepository() {
-
-	}
 
 	public Artist getArtist(int id) {
 		for (Artist artist : artists) {

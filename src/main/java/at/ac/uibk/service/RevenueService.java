@@ -2,15 +2,16 @@ package at.ac.uibk.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import at.ac.uibk.model.Revenue;
 import at.ac.uibk.repository.RevenueRepository;
 
+@Service("revenueService")
 public class RevenueService {
+	@Autowired
 	private RevenueRepository revenueRepository;
-
-	public RevenueService() {
-		this.revenueRepository = new RevenueRepository();
-	}
 
 	public Revenue getRevenue(int id) {
 

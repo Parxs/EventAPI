@@ -2,16 +2,17 @@ package at.ac.uibk.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import at.ac.uibk.model.Artist;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.repository.ArtistRepository;
 
+@Service("artistService")
 public class ArtistService {
+	@Autowired
 	private ArtistRepository artistRepository;
-
-	public ArtistService() {
-		this.artistRepository = new ArtistRepository();
-	}
 
 	public Artist getArtist(int id) {
 

@@ -3,19 +3,18 @@ package at.ac.uibk.repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import at.ac.uibk.model.Revenue;
 
 // TODO use real data and db
+@Service("revenueRepository")
 public class RevenueRepository {
 
 	ArrayList<Revenue> revenues = new ArrayList<>();
 
 	// TODO threadsafe solution
 	private int currentId = 100;
-
-	public RevenueRepository() {
-
-	}
 
 	public Revenue getRevenue(int id) {
 		for (Revenue revenue : revenues) {
