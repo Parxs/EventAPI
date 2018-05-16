@@ -72,7 +72,6 @@ public class ArtistController {
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 		}
 		artist.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
-		artist.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withSelfRel());
 
 		return new ResponseEntity<>(artist, HttpStatus.OK);
 	}
@@ -135,8 +134,8 @@ public class ArtistController {
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 		}
 		Navigation navi = new Navigation("Artist " + id + " was deleted");
+		addStandardNavigation(navi);
 		navi.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
-		navi.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withSelfRel());
 
 		return new ResponseEntity<>(navi, HttpStatus.OK);
 	}
@@ -148,8 +147,8 @@ public class ArtistController {
 			@RequestParam(value = "genre", required = false, defaultValue = "") String genre) {
 
 		GenericList<Artist> searchForArtist = artistService.searchForArtist(name, age, genre);
+		addStandardNavigation(searchForArtist);
 		searchForArtist.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
-		searchForArtist.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withSelfRel());
 		if (searchForArtist != null) {
 			for (Artist artist : searchForArtist.getList()) {
 				searchForArtist

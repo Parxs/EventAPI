@@ -48,7 +48,7 @@ public class EventController {
 		return new ResponseEntity<>(true, HttpStatus.OK);
 	}
 
-	private void addStandardNavigation(Navigation navi) {
+	private void addStandardNavigation(ResourceSupport navi) {
 		navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
 		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
 				.withSelfRel());
@@ -60,13 +60,12 @@ public class EventController {
 		Event event = eventService.getEvent(id);
 		if(event == null) {
 			Navigation eventError = new Navigation("Event not found");
+			addStandardNavigation(eventError);
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 
 		}
-		event.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
-		event.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
-				.withSelfRel());
-
+		
+		addStandardNavigation(event);
 		return new ResponseEntity<>(event, HttpStatus.OK);
 	}
 	@RequestMapping(value = "/events/{id}", method = RequestMethod.DELETE)
@@ -74,14 +73,12 @@ public class EventController {
 		boolean ok = eventService.deleteEvent(id);
 		if(!ok) {
 			Navigation navi = new Navigation("Event " + id + " not found");
+			addStandardNavigation(navi);
 			return new ResponseEntity<>(navi, HttpStatus.NOT_FOUND);
 
 		}else {
 			Navigation navi = new Navigation("Event " + id + " deleted");
-			navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
-			navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
-					.withSelfRel());
-	
+			addStandardNavigation(navi);
 			return new ResponseEntity<>(navi, HttpStatus.OK);
 		}
 	}
@@ -141,8 +138,7 @@ public class EventController {
 
 		Artist a = eventService.getArtistsOfEvent(id);
 		a.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
-		a.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
-				.withSelfRel());
+		addStandardNavigation(a);
 		a.add(linkTo(methodOn(EventController.class).getArtistForEvents(id)).withSelfRel());
 
 		return new ResponseEntity<>(a, HttpStatus.OK);
@@ -153,8 +149,7 @@ public class EventController {
 
 		Venue r = eventService.getVenueOfEvent(id);
 		r.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
-		r.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
-				.withSelfRel());
+		addStandardNavigation(r);
 		r.add(linkTo(methodOn(EventController.class).getVenueForEvents(id)).withSelfRel());
 
 		return new ResponseEntity<>(r, HttpStatus.OK);
@@ -182,7 +177,7 @@ public class EventController {
 			@RequestParam(value = "venuName", required = false, defaultValue = "") String venueName) {
 
 		GenericList<Event> searchForEvents = eventService.searchEvent(name, artistName, venueName);
-		searchForEvents.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
+		addStandardNavigation(searchForEvents);
 		searchForEvents.add(linkTo(methodOn(EventController.class).searchForEvents(name, artistName, venueName)).withSelfRel());
 		if (searchForEvents != null) {
 			for (Event event : searchForEvents.getList()) {
