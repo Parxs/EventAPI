@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,17 +50,42 @@ public class VenueController {
 		return new ResponseEntity<>(navi, HttpStatus.OK);
 	}
 
-	@RequestMapping("/venues/{id}")
-	public HttpEntity<Venue> getVenue(@PathVariable("id") int id) {
+	@RequestMapping(value = "/venues/{id}", method = RequestMethod.GET)
+	public HttpEntity<ResourceSupport> getVenue(@PathVariable("id") int id) {
 
 		Venue venue = venueService.getVenue(id);
+		if(venue == null) {
+			Navigation eventError = new Navigation("Venue not found");
+			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
+		}
 		venue.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
 		venue.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
 				.withSelfRel());
 
 		return new ResponseEntity<>(venue, HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/venues/{id}", method = RequestMethod.DELETE)
+	public HttpEntity<ResourceSupport> deleteVenue(@PathVariable("id") int id) {
 
+		boolean ok = venueService.deleteVenue(id);
+		if(!ok) {
+			Navigation navi = new Navigation("Venue " + id + " not found");
+			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
+			navi.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
+					.withSelfRel());
+			return new ResponseEntity<>(navi, HttpStatus.NOT_FOUND);
+
+		}else {
+			Navigation navi = new Navigation("Venue Deleted");
+			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
+			navi.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
+					.withSelfRel());
+	
+			return new ResponseEntity<>(navi, HttpStatus.OK);
+		}
+	}
+	
 	@RequestMapping("/venues/{id}/artists")
 	public HttpEntity<GenericList<Artist>> getArtistsInVenue(@PathVariable("id") int id) {
 
@@ -73,7 +99,7 @@ public class VenueController {
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
-	@RequestMapping("/venues/new")
+	@RequestMapping(value = "/venues", method = RequestMethod.POST)
 	public HttpEntity<Navigation> createVenue(
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
 			@RequestParam(value = "country", required = true, defaultValue = "") String country,
@@ -99,6 +125,33 @@ public class VenueController {
 		}
 	}
 
+	@RequestMapping(value = "/venues/{id}", method = RequestMethod.PUT)
+	public HttpEntity<Navigation> updateVenue(
+			@PathVariable("id") int id,
+			@RequestParam(value = "name", required = true, defaultValue = "") String name,
+			@RequestParam(value = "country", required = true, defaultValue = "") String country,
+			@RequestParam(value = "city", required = true, defaultValue = "") String city,
+			@RequestParam(value = "address", required = true, defaultValue = "") String address,
+			@RequestParam(value = "size", required = true, defaultValue = "") String size) {
+
+		Navigation navi = new Navigation();
+		boolean ok = venueService.updateVenue(id,name, country, city, address, size);
+		if (ok) {
+			navi.setContent("Venue updated");
+			addStandardNavigation(navi);
+			navi.add(linkTo(methodOn(VenueController.class).getVenue(id)).withSelfRel());
+			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
+
+			return new ResponseEntity<>(navi, HttpStatus.OK);
+		} else {
+			navi.setContent("Failed to update Venue");
+			addStandardNavigation(navi);
+			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
+
+			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+	
 	@RequestMapping(value = "/venues/search")
 	public HttpEntity<GenericList<Venue>> searchForVenue(
 			@RequestParam(value = "name", required = false, defaultValue = "") String name,

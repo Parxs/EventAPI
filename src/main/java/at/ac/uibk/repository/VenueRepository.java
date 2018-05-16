@@ -40,6 +40,14 @@ public class VenueRepository {
 		return null;
 	}
 
+	public boolean deleteVenue(int id) {
+		Venue venue = getVenue(id);
+		if(venue == null)
+			return false;
+		this.venues.remove(venue);
+		return true;
+	}
+	
 	public List<Venue> getVenues() {
 		return venues;
 	}
@@ -55,7 +63,14 @@ public class VenueRepository {
 		currentId++;
 		return currentId - 1;
 	}
-
+	
+	public boolean updateVenue(int id, String name, String country, String city, String address, String size) {
+		this.venues.remove(this.getVenue(id));
+		Venue venue = new Venue(id, name, country, city, address, size);
+		venues.add(venue);
+		return true;
+	}
+	
 	public List<Venue> searchVenue(String name, String country, String city) {
 		ArrayList<Venue> result = new ArrayList<>();
 		int fitting;

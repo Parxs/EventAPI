@@ -25,6 +25,10 @@ public class VenueService {
 
 		return venueRepository.getVenue(id);
 	}
+	
+	public boolean deleteVenue(int id) {
+		return venueRepository.deleteVenue(id);
+	}
 
 	public List<Venue> getRevenues() {
 		return venueRepository.getVenues();
@@ -32,6 +36,10 @@ public class VenueService {
 
 	public int createVenue(String name, String country, String city, String address, String size) {
 		return venueRepository.createVenue(name, country, city, address, size);
+	}
+	
+	public boolean updateVenue(int id, String name, String country, String city, String address, String size) {
+		return venueRepository.updateVenue(id, name, country, city, address, size);
 	}
 
 	public GenericList<Venue> searchVenue(String name, String country, String city) {

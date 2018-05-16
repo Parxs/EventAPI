@@ -71,13 +71,19 @@ public class EventController {
 	}
 	@RequestMapping(value = "/events/{id}", method = RequestMethod.DELETE)
 	public HttpEntity<Navigation> deleteEvents(@PathVariable("id") int id) {
-		eventService.deleteEvent(id);
-		Navigation navi = new Navigation("Event " + id + " deleted");
-		navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
-		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
-				.withSelfRel());
+		boolean ok = eventService.deleteEvent(id);
+		if(!ok) {
+			Navigation navi = new Navigation("Event " + id + " not found");
+			return new ResponseEntity<>(navi, HttpStatus.NOT_FOUND);
 
-		return new ResponseEntity<>(navi, HttpStatus.OK);
+		}else {
+			Navigation navi = new Navigation("Event " + id + " deleted");
+			navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
+			navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
+					.withSelfRel());
+	
+			return new ResponseEntity<>(navi, HttpStatus.OK);
+		}
 	}
 	
 	@RequestMapping( value = "/events", method = RequestMethod.POST)

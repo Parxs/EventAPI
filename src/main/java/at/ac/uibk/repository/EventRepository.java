@@ -43,6 +43,8 @@ public class EventRepository {
 	
 	public boolean deleteEvent(int id) {
 		Event toRemove = this.getEvent(id);
+		if (toRemove == null)
+			return false;
 		this.events.remove(toRemove);
 		return true;
 	}

@@ -54,7 +54,10 @@ public class ArtistRepository {
 	}
 
 	public boolean deleteArtist(int id) {
-		this.artists.remove(this.getArtist(id));
+		Artist toRemove = this.getArtist(id);
+		if(toRemove == null)
+			return false;
+		this.artists.remove(toRemove);
 		return true;
 	}
 	

@@ -35,7 +35,7 @@ public class ArtistController {
 		rs.add(linkTo(methodOn(ArtistController.class).searchForArtist("name", 18, "genre")).withSelfRel());
 	}
 
-	@RequestMapping(value = "/artists") // , method = RequestMethod.GET)
+	@RequestMapping(value = "/artists")
 	public HttpEntity<Navigation> getArtists() {
 
 		Navigation navi = new Navigation("Operations for Artists");
