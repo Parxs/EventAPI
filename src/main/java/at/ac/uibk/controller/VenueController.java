@@ -6,6 +6,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import at.ac.uibk.model.Event;
+import at.ac.uibk.model.Artist;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Navigation;
 import at.ac.uibk.model.Venue;
@@ -26,8 +27,9 @@ public class VenueController {
 	@Autowired
 	private VenueService venueService;
 
-	private void addStandardNavigation(Navigation navi) {
-		navi.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
+	private void addStandardNavigation(ResourceSupport rs) {
+		rs.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
+		rs.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
 				.withSelfRel());
 	}
 
@@ -52,11 +54,23 @@ public class VenueController {
 
 		Venue venue = venueService.getVenue(id);
 		venue.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
-		venue.add(
-				linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
-						.withSelfRel());
+		venue.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
+				.withSelfRel());
 
 		return new ResponseEntity<>(venue, HttpStatus.OK);
+	}
+
+	@RequestMapping("/venues/{id}/artists")
+	public HttpEntity<GenericList<Artist>> getArtistsInVenue(@PathVariable("id") int id) {
+
+		GenericList<Artist> list = venueService.getArtistsInVenue(id);
+		addStandardNavigation(list);
+
+		for (Artist artist : list.getList()) {
+			list.add(linkTo(methodOn(ArtistController.class).getArtist(artist.getArtistId())).withSelfRel());
+		}
+
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
 	@RequestMapping("/venues/new")
@@ -84,7 +98,7 @@ public class VenueController {
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
-	
+
 	@RequestMapping(value = "/venues/search")
 	public HttpEntity<GenericList<Venue>> searchForVenue(
 			@RequestParam(value = "name", required = false, defaultValue = "") String name,
@@ -95,9 +109,8 @@ public class VenueController {
 		searchForVenue.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
 		searchForVenue.add(linkTo(methodOn(VenueController.class).searchForVenue(name, country, city)).withSelfRel());
 		if (searchForVenue != null) {
-			for (Venue venue: searchForVenue.getList()) {
-				searchForVenue
-						.add(linkTo(methodOn(VenueController.class).getVenue(venue.getVenueId())).withSelfRel());
+			for (Venue venue : searchForVenue.getList()) {
+				searchForVenue.add(linkTo(methodOn(VenueController.class).getVenue(venue.getVenueId())).withSelfRel());
 			}
 		}
 		return new ResponseEntity<>(searchForVenue, HttpStatus.OK);

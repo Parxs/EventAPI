@@ -14,10 +14,11 @@ public class ArtistRepository {
 	ArrayList<Artist> artists = new ArrayList<>();
 
 	public ArtistRepository() {
-		createArtist(1,"justin Bieber", 12, "pop");
-		createArtist(2,"lady gaga", 30, "weird pop");
-		createArtist(3,"metallica", 50, "METAL");
+		createArtist(1, "justin Bieber", 12, "pop");
+		createArtist(2, "lady gaga", 30, "weird pop");
+		createArtist(3, "metallica", 50, "METAL");
 	}
+
 	// TODO threadsafe solution
 	private int currentId = 100;
 
@@ -44,7 +45,7 @@ public class ArtistRepository {
 		Artist artist = new Artist(id, name, age, genre);
 		artists.add(artist);
 	}
-	
+
 	public int createArtist(String name, int age, String genre) {
 
 		Artist artist = new Artist(currentId, name, age, genre);
@@ -80,5 +81,15 @@ public class ArtistRepository {
 			}
 		}
 		return result;
+	}
+
+	public List<Artist> getArtists(List<Integer> artistsInRevenue) {
+		ArrayList<Artist> list = new ArrayList<>();
+
+		for (int id : artistsInRevenue) {
+			list.add(getArtist(id));
+		}
+
+		return list;
 	}
 }
