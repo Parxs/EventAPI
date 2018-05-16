@@ -6,13 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import at.ac.uibk.model.Artist;
+import at.ac.uibk.model.Event;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.repository.ArtistRepository;
+import at.ac.uibk.repository.EventRepository;
 
 @Service("artistService")
 public class ArtistService {
 	@Autowired
 	private ArtistRepository artistRepository;
+	@Autowired
+	private EventRepository eventRepository;
 
 	public Artist getArtist(int id) {
 
@@ -30,6 +34,12 @@ public class ArtistService {
 	public GenericList<Artist> searchForArtist(String name, int age, String genre) {
 		List<Artist> searchForArtist = artistRepository.searchForArtist(name, age, genre);
 		GenericList<Artist> list = new GenericList<>(searchForArtist);
+		return list;
+	}
+
+	public GenericList<Event> getEventsOfArtist(int id) {
+		List<Event> eventsOfArtist = eventRepository.getEventsOfArtist(id);
+		GenericList<Event> list = new GenericList<>(eventsOfArtist);
 		return list;
 	}
 

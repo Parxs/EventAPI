@@ -52,35 +52,45 @@ public class EventRepository {
 
 		return currentId - 1;
 	}
-	
-	public List<Event> searchForEvent(String name, int artistId, int venueId){
+
+	public List<Event> searchForEvent(String name, int artistId, int venueId) {
 		ArrayList<Event> result = new ArrayList<>();
 		int fitting;
 		for (Event event : events) {
 			fitting = 0;
-			if(name == "") {
+			if (name == "") {
 				fitting++;
-			} else if (event.getTitle().contains(name)){
+			} else if (event.getTitle().contains(name)) {
 				fitting++;
 			} else {
 				fitting = event.getDescription().contains(name) ? fitting + 1 : fitting;
 			}
-			
-			if(artistId == -1) {
+
+			if (artistId == -1) {
 				fitting++;
-			}else {
+			} else {
 				fitting = event.getArtistId() == artistId ? fitting + 1 : fitting;
 			}
-			
-			if(venueId == -1) {
+
+			if (venueId == -1) {
 				fitting++;
-			}else {
+			} else {
 				fitting = event.getVenueId() == venueId ? fitting + 1 : fitting;
 			}
 			if (fitting == 3) {
 				result.add(event);
 			}
 		}
-		return result;		
+		return result;
+	}
+
+	public List<Event> getEventsOfArtist(int id) {
+		ArrayList<Event> list = new ArrayList<>();
+		for (Event event : events) {
+			if (event.getArtistId() == id) {
+				list.add(event);
+			}
+		}
+		return list;
 	}
 }

@@ -6,6 +6,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.ac.uibk.model.Artist;
+import at.ac.uibk.model.Event;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Navigation;
 import at.ac.uibk.service.ArtistService;
@@ -27,9 +29,9 @@ public class ArtistController {
 	@Autowired
 	private ArtistService artistService;
 
-	private void addStandardNavigation(Navigation navi) {
-		navi.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withSelfRel());
-		navi.add(linkTo(methodOn(ArtistController.class).searchForArtist("name", 18, "genre")).withSelfRel());
+	private void addStandardNavigation(ResourceSupport rs) {
+		rs.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withSelfRel());
+		rs.add(linkTo(methodOn(ArtistController.class).searchForArtist("name", 18, "genre")).withSelfRel());
 	}
 
 	@RequestMapping(value = "/artists") // , method = RequestMethod.GET)
@@ -46,6 +48,18 @@ public class ArtistController {
 			}
 		}
 		return new ResponseEntity<>(navi, HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/artists/{id}/events")
+	public HttpEntity<GenericList<Event>> getAllEvents(@PathVariable("id") int id) {
+
+		GenericList<Event> eventsOfArtist = artistService.getEventsOfArtist(id);
+		addStandardNavigation(eventsOfArtist);
+		for (Event event : eventsOfArtist.getList()) {
+			eventsOfArtist.add(linkTo(methodOn(EventController.class).getEvents(event.getEventId())).withSelfRel());
+		}
+
+		return new ResponseEntity<>(eventsOfArtist, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/artists/{id}") // , method = RequestMethod.GET)
