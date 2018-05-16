@@ -44,12 +44,43 @@ public class EventRepository {
 		return events;
 	}
 
-	public int createEvent(String title, String description, String startTime, int revenueId, int artistId) {
+	public int createEvent(String title, String description, String startTime, int venueId, int artistId) {
 
-		Event event = new Event(currentId, title, description, startTime, revenueId, artistId);
+		Event event = new Event(currentId, title, description, startTime, venueId, artistId);
 		currentId++;
 		events.add(event);
 
 		return currentId - 1;
+	}
+	
+	public List<Event> searchForEvent(String name, int artistId, int venueId){
+		ArrayList<Event> result = new ArrayList<>();
+		int fitting;
+		for (Event event : events) {
+			fitting = 0;
+			if(name == "") {
+				fitting++;
+			} else if (event.getTitle().contains(name)){
+				fitting++;
+			} else {
+				fitting = event.getDescription().contains(name) ? fitting + 1 : fitting;
+			}
+			
+			if(artistId == -1) {
+				fitting++;
+			}else {
+				fitting = event.getArtistId() == artistId ? fitting + 1 : fitting;
+			}
+			
+			if(venueId == -1) {
+				fitting++;
+			}else {
+				fitting = event.getVenueId() == venueId ? fitting + 1 : fitting;
+			}
+			if (fitting == 3) {
+				result.add(event);
+			}
+		}
+		return result;		
 	}
 }

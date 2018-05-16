@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import at.ac.uibk.model.Artist;
 import at.ac.uibk.model.Event;
+import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Navigation;
 import at.ac.uibk.model.Venue;
 import at.ac.uibk.service.ArtistService;
@@ -29,7 +30,7 @@ public class EventController {
 	@Autowired
 	private ArtistService artistService;
 	@Autowired
-	private VenueService revenueService;
+	private VenueService venueService;
 
 	@RequestMapping("/init")
 	public HttpEntity<Boolean> init() {
@@ -123,6 +124,24 @@ public class EventController {
 
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
+	}
+	
+	@RequestMapping(value = "/events/search")
+	public HttpEntity<GenericList<Event>> searchForEvents(
+			@RequestParam(value = "name", required = false, defaultValue = "") String name,
+			@RequestParam(value = "artistName", required = false, defaultValue = "") String artistName,
+			@RequestParam(value = "venuName", required = false, defaultValue = "") String venueName) {
+
+		GenericList<Event> searchForEvents = eventService.searchEvent(name, artistName, venueName);
+		searchForEvents.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
+		searchForEvents.add(linkTo(methodOn(EventController.class).searchForEvents(name, artistName, venueName)).withSelfRel());
+		if (searchForEvents != null) {
+			for (Event event : searchForEvents.getList()) {
+				searchForEvents
+						.add(linkTo(methodOn(EventController.class).getEvents(event.getEventId())).withSelfRel());
+			}
+		}
+		return new ResponseEntity<>(searchForEvents, HttpStatus.OK);
 	}
 
 }
