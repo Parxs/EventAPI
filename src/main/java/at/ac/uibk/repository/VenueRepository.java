@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import at.ac.uibk.model.Event;
 import at.ac.uibk.model.Venue;
 
 // TODO use real data and db
@@ -13,12 +12,12 @@ import at.ac.uibk.model.Venue;
 public class VenueRepository {
 
 	public VenueRepository() {
-		createVenue(1, "olympia stadion", "Austria", "Innsbruck", "olympia straﬂe 1", "TAUSEND");
-		createVenue(2, "kleines ding", "Austria", "Innsbruck", "klein ding straﬂe 1", "net tausend");
-		createVenue(3, "mittleres halle", "Austria", "Innsbruck", "haupt straﬂe 1", "fast tausend");
-		
+		createVenue(1, "olympia stadion", "Austria", "Innsbruck", "olympia strasse 1", "TAUSEND");
+		createVenue(2, "kleines ding", "Austria", "Innsbruck", "klein ding strasse 1", "net tausend");
+		createVenue(3, "mittleres halle", "Austria", "Innsbruck", "haupt strasse 1", "fast tausend");
+
 	}
-	
+
 	ArrayList<Venue> venues = new ArrayList<>();
 
 	// TODO threadsafe solution
@@ -42,12 +41,12 @@ public class VenueRepository {
 
 	public boolean deleteVenue(int id) {
 		Venue venue = getVenue(id);
-		if(venue == null)
+		if (venue == null)
 			return false;
 		this.venues.remove(venue);
 		return true;
 	}
-	
+
 	public List<Venue> getVenues() {
 		return venues;
 	}
@@ -56,47 +55,47 @@ public class VenueRepository {
 		Venue venue = new Venue(id, name, country, city, address, size);
 		venues.add(venue);
 	}
-	
+
 	public int createVenue(String name, String country, String city, String address, String size) {
 		Venue venue = new Venue(currentId, name, country, city, address, size);
 		venues.add(venue);
 		currentId++;
 		return currentId - 1;
 	}
-	
+
 	public boolean updateVenue(int id, String name, String country, String city, String address, String size) {
 		this.venues.remove(this.getVenue(id));
 		Venue venue = new Venue(id, name, country, city, address, size);
 		venues.add(venue);
 		return true;
 	}
-	
+
 	public List<Venue> searchVenue(String name, String country, String city) {
 		ArrayList<Venue> result = new ArrayList<>();
 		int fitting;
-		for (Venue venue: venues) {
+		for (Venue venue : venues) {
 			fitting = 0;
-			if(name == "") {
+			if (name == "") {
 				fitting++;
 			} else {
 				fitting = venue.getName().contains(name) ? fitting + 1 : fitting;
 			}
-			
-			if(country == "") {
+
+			if (country == "") {
 				fitting++;
-			}else {
+			} else {
 				fitting = venue.getCountry().contains(country) ? fitting + 1 : fitting;
 			}
-			
-			if(city == "") {
+
+			if (city == "") {
 				fitting++;
-			}else {
+			} else {
 				fitting = venue.getCity().contains(city) ? fitting + 1 : fitting;
 			}
 			if (fitting == 3) {
 				result.add(venue);
 			}
 		}
-		return result;	
+		return result;
 	}
 }

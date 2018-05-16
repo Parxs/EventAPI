@@ -27,9 +27,11 @@ public class EventService {
 
 	public Event getEvent(int id) {
 		Event event = eventRepository.getEvent(id);
+		event.fillWith(venueRepository.getVenue(event.getVenueId()));
+		event.fillWith(artistRepository.getArtist(event.getArtistId()));
 		return event;
 	}
-	
+
 	public boolean deleteEvent(int id) {
 		return eventRepository.deleteEvent(id);
 	}
@@ -41,32 +43,33 @@ public class EventService {
 	public int createEvent(String title, String description, String startTime, int revenueId, int artistId) {
 		return eventRepository.createEvent(title, description, startTime, revenueId, artistId);
 	}
-	
-	public boolean updateEvent(int id, String title, String description, String startTime, int revenueId, int artistId) {
+
+	public boolean updateEvent(int id, String title, String description, String startTime, int revenueId,
+			int artistId) {
 		return eventRepository.updateEvent(id, title, description, startTime, revenueId, artistId);
 	}
-	
-	public Artist getArtistsOfEvent(int id){
+
+	public Artist getArtistsOfEvent(int id) {
 		Event e = eventRepository.getEvent(id);
 		return artistRepository.getArtist(e.getArtistId());
 	}
-	
+
 	public Venue getVenueOfEvent(int id) {
 		Event e = eventRepository.getEvent(id);
 		return venueRepository.getVenue(e.getVenueId());
 	}
-	
-	public GenericList<Event> searchEvent(String name, String artistName, String venueName){
+
+	public GenericList<Event> searchEvent(String name, String artistName, String venueName) {
 		List<Artist> artistList = artistRepository.searchForArtist(name, -1, "");
 		int artistId = -1;
-		if(artistList.size() > 0) {
+		if (artistList.size() > 0) {
 			artistId = artistList.get(0).getArtistId();
 		}
-		
+
 		// TODO use venue search here to get id
 		int venueId = -1;
 		List<Event> searchForEvent = eventRepository.searchForEvent(name, artistId, venueId);
-		
+
 		GenericList<Event> list = new GenericList<>(searchForEvent);
 		return list;
 	}

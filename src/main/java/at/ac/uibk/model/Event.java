@@ -65,4 +65,14 @@ public class Event extends ResourceSupport {
 		this.artistId = artistId;
 	}
 
+	public void fillWith(Venue venue) {
+		this.country = venue.getCountry();
+		this.city = venue.getCity();
+		this.address = venue.getAddress();
+	}
+
+	public void fillWith(Artist artist) {
+		this.artistName = artist.getName();
+	}
+
 }
