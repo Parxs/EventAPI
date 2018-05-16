@@ -29,6 +29,10 @@ public class EventService {
 		Event event = eventRepository.getEvent(id);
 		return event;
 	}
+	
+	public boolean deleteEvent(int id) {
+		return eventRepository.deleteEvent(id);
+	}
 
 	public List<Event> getEvents() {
 		return eventRepository.getEvents();
@@ -36,6 +40,10 @@ public class EventService {
 
 	public int createEvent(String title, String description, String startTime, int revenueId, int artistId) {
 		return eventRepository.createEvent(title, description, startTime, revenueId, artistId);
+	}
+	
+	public boolean updateEvent(int id, String title, String description, String startTime, int revenueId, int artistId) {
+		return eventRepository.updateEvent(id, title, description, startTime, revenueId, artistId);
 	}
 	
 	public Artist getArtistsOfEvent(int id){
@@ -62,4 +70,5 @@ public class EventService {
 		GenericList<Event> list = new GenericList<>(searchForEvent);
 		return list;
 	}
+
 }

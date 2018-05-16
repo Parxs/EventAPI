@@ -39,6 +39,12 @@ public class EventRepository {
 		// 12:00:00", "austria", "innsbruck",
 		// "hauptstrasse 7");
 	}
+	
+	public boolean deleteEvent(int id) {
+		Event toRemove = this.getEvent(id);
+		this.events.remove(toRemove);
+		return true;
+	}
 
 	public List<Event> getEvents() {
 		return events;
@@ -51,6 +57,12 @@ public class EventRepository {
 		events.add(event);
 
 		return currentId - 1;
+	}
+	
+	public boolean updateEvent(int id, String title, String description, String startTime, int venueId, int artistId) {
+		Event event = new Event(id, title, description, startTime, venueId, artistId);
+		events.add(event);
+		return true;
 	}
 
 	public List<Event> searchForEvent(String name, int artistId, int venueId) {

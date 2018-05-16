@@ -6,11 +6,13 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,16 +54,81 @@ public class EventController {
 				.withSelfRel());
 	}
 
-	@RequestMapping("/events/{id}")
-	public HttpEntity<Event> getEvents(@PathVariable("id") int id) {
+	@RequestMapping(value = "/events/{id}", method = RequestMethod.GET)
+	public HttpEntity<ResourceSupport> getEvents(@PathVariable("id") int id) {
 
 		Event event = eventService.getEvent(id);
+		if(event == null) {
+			Navigation eventError = new Navigation("Event not found");
+			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
+
+		}
 		event.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
 		event.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
 				.withSelfRel());
 
 		return new ResponseEntity<>(event, HttpStatus.OK);
 	}
+	@RequestMapping(value = "/events/{id}", method = RequestMethod.DELETE)
+	public HttpEntity<Navigation> deleteEvents(@PathVariable("id") int id) {
+		eventService.deleteEvent(id);
+		Navigation navi = new Navigation("Event " + id + " deleted");
+		navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
+		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
+				.withSelfRel());
+
+		return new ResponseEntity<>(navi, HttpStatus.OK);
+	}
+	
+	@RequestMapping( value = "/events", method = RequestMethod.POST)
+	public HttpEntity<Navigation> createEvent(
+			@RequestParam(value = "title", required = true, defaultValue = "") String title,
+			@RequestParam(value = "description", required = true, defaultValue = "") String description,
+			@RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
+			@RequestParam(value = "venueId", required = true, defaultValue = "") int venueId,
+			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId) {
+
+		Navigation navi = new Navigation();
+		int eventId = eventService.createEvent(title, description, startTime, venueId, artistId);
+		if (eventId > -1) {
+			navi.setContent("Event created");
+			addStandardNavigation(navi);
+			navi.add(linkTo(methodOn(EventController.class).getEvents(eventId)).withSelfRel());
+
+			return new ResponseEntity<>(navi, HttpStatus.OK);
+		} else {
+			navi.setContent("Failed to create Event");
+			addStandardNavigation(navi);
+
+			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+	
+	@RequestMapping( value = "/events/{id}", method = RequestMethod.PUT)
+	public HttpEntity<Navigation> updateEvent(
+			@PathVariable("id") int id,
+			@RequestParam(value = "title", required = true, defaultValue = "") String title,
+			@RequestParam(value = "description", required = true, defaultValue = "") String description,
+			@RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
+			@RequestParam(value = "venueId", required = true, defaultValue = "") int venueId,
+			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId) {
+
+		Navigation navi = new Navigation();
+		boolean ok = eventService.updateEvent(id,title, description, startTime, venueId, artistId);
+		if (ok) {
+			navi.setContent("Event updated");
+			addStandardNavigation(navi);
+			navi.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
+
+			return new ResponseEntity<>(navi, HttpStatus.OK);
+		} else {
+			navi.setContent("Failed to updated Event");
+			addStandardNavigation(navi);
+
+			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+	
 
 	@RequestMapping("/events/{id}/artist")
 	public HttpEntity<Artist> getArtistForEvents(@PathVariable("id") int id) {
@@ -87,7 +154,7 @@ public class EventController {
 		return new ResponseEntity<>(r, HttpStatus.OK);
 	}
 	
-	@RequestMapping("/events")
+	@RequestMapping(value = "/events", method = RequestMethod.GET)
 	public HttpEntity<Navigation> getEvents() {
 
 		Navigation navi = new Navigation("Operations for Events");
@@ -100,30 +167,6 @@ public class EventController {
 		}
 
 		return new ResponseEntity<>(navi, HttpStatus.OK);
-	}
-
-	@RequestMapping("/events/new")
-	public HttpEntity<Navigation> createEvent(
-			@RequestParam(value = "title", required = true, defaultValue = "") String title,
-			@RequestParam(value = "description", required = true, defaultValue = "") String description,
-			@RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
-			@RequestParam(value = "revenueId", required = true, defaultValue = "") int revenueId,
-			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId) {
-
-		Navigation navi = new Navigation();
-		int eventId = eventService.createEvent(title, description, startTime, revenueId, artistId);
-		if (eventId > -1) {
-			navi.setContent("Event created");
-			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(EventController.class).getEvents(eventId)).withSelfRel());
-
-			return new ResponseEntity<>(navi, HttpStatus.OK);
-		} else {
-			navi.setContent("Failed to create Event");
-			addStandardNavigation(navi);
-
-			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
-		}
 	}
 	
 	@RequestMapping(value = "/events/search")
