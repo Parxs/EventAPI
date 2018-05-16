@@ -1,6 +1,7 @@
 package at.ac.uibk.repository;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -89,6 +90,20 @@ public class EventRepository {
 		for (Event event : events) {
 			if (event.getArtistId() == id) {
 				list.add(event);
+			}
+		}
+		return list;
+	}
+
+	public List<Integer> getArtistsInRevenue(int venueId) {
+		ArrayList<Integer> list = new ArrayList<>();
+		LinkedHashSet<Integer> hashSet = new LinkedHashSet<>();
+		for (Event event : events) {
+			if (event.getVenueId() == venueId) {
+				int artistId = event.getArtistId();
+				if (hashSet.add(artistId)) {
+					list.add(artistId);
+				}
 			}
 		}
 		return list;
