@@ -15,50 +15,50 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.ac.uibk.model.Navigation;
-import at.ac.uibk.model.Revenue;
-import at.ac.uibk.service.RevenueService;
+import at.ac.uibk.model.Venue;
+import at.ac.uibk.service.VenueService;
 
 @RestController
-public class RevenueController {
+public class VenueController {
 
 	@Autowired
-	private RevenueService revenueService;
+	private VenueService venueService;
 
 	private void addStandardNavigation(Navigation navi) {
-		navi.add(linkTo(methodOn(RevenueController.class).createRevenue("name", "country", "city", "address", "size"))
+		navi.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
 				.withSelfRel());
 	}
 
-	@RequestMapping("/revenues")
-	public HttpEntity<Navigation> getRevenues() {
+	@RequestMapping("/venues")
+	public HttpEntity<Navigation> getVenues() {
 
 		Navigation navi = new Navigation("Operations for Revenues");
 
 		addStandardNavigation(navi);
 
-		List<Revenue> revenues = revenueService.getRevenues();
+		List<Venue> revenues = venueService.getRevenues();
 		if (revenues != null) {
-			for (Revenue revenue : revenues) {
-				navi.add(linkTo(methodOn(RevenueController.class).getRevenue(revenue.getRevenueId())).withSelfRel());
+			for (Venue revenue : revenues) {
+				navi.add(linkTo(methodOn(VenueController.class).getVenue(revenue.getVenueId())).withSelfRel());
 			}
 		}
 		return new ResponseEntity<>(navi, HttpStatus.OK);
 	}
 
-	@RequestMapping("/revenue/{id}")
-	public HttpEntity<Revenue> getRevenue(@PathVariable("id") int id) {
+	@RequestMapping("/venue/{id}")
+	public HttpEntity<Venue> getVenue(@PathVariable("id") int id) {
 
-		Revenue revenue = revenueService.getRevenue(id);
-		revenue.add(linkTo(methodOn(RevenueController.class).getRevenues()).withSelfRel());
+		Venue revenue = venueService.getVenue(id);
+		revenue.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
 		revenue.add(
-				linkTo(methodOn(RevenueController.class).createRevenue("name", "country", "city", "address", "size"))
+				linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
 						.withSelfRel());
 
 		return new ResponseEntity<>(revenue, HttpStatus.OK);
 	}
 
-	@RequestMapping("/revenue/new")
-	public HttpEntity<Navigation> createRevenue(
+	@RequestMapping("/venue/new")
+	public HttpEntity<Navigation> createVenue(
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
 			@RequestParam(value = "country", required = true, defaultValue = "") String country,
 			@RequestParam(value = "city", required = true, defaultValue = "") String city,
@@ -66,18 +66,18 @@ public class RevenueController {
 			@RequestParam(value = "size", required = true, defaultValue = "") String size) {
 
 		Navigation navi = new Navigation();
-		int id = revenueService.createRevenue(name, country, city, address, size);
+		int id = venueService.createVenue(name, country, city, address, size);
 		if (-1 < id) {
 			navi.setContent("Revenue created");
 			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(RevenueController.class).getRevenue(id)).withSelfRel());
-			navi.add(linkTo(methodOn(RevenueController.class).getRevenues()).withSelfRel());
+			navi.add(linkTo(methodOn(VenueController.class).getVenue(id)).withSelfRel());
+			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.OK);
 		} else {
 			navi.setContent("Failed to create Revenue");
 			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(RevenueController.class).getRevenues()).withSelfRel());
+			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}

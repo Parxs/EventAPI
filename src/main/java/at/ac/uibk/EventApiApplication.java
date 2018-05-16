@@ -10,3 +10,4 @@ public class EventApiApplication {
 		SpringApplication.run(EventApiApplication.class, args);
 	}
 }
+	

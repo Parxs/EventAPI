@@ -10,9 +10,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Revenue extends ResourceSupport {
+public class Venue extends ResourceSupport {
 
-	private final int revenueId;
+	private final int venueId;
 	private final String name;
 	private final String country;
 	private final String city;
@@ -20,8 +20,8 @@ public class Revenue extends ResourceSupport {
 	private final String size;
 
 	@JsonCreator
-	public Revenue() {
-		this.revenueId = 0;
+	public Venue() {
+		this.venueId = 0;
 		this.name = "";
 		this.country = "";
 		this.city = "";
@@ -30,10 +30,10 @@ public class Revenue extends ResourceSupport {
 	}
 
 	@JsonCreator
-	public Revenue(@JsonProperty("revenueId") int revenueId, @JsonProperty("name") String name,
+	public Venue(@JsonProperty("revenueId") int venueId, @JsonProperty("name") String name,
 			@JsonProperty("country") String country, @JsonProperty("city") String city,
 			@JsonProperty("address") String address, @JsonProperty("size") String size) {
-		this.revenueId = revenueId;
+		this.venueId = venueId;
 		this.name = name;
 		this.country = country;
 		this.city = city;

@@ -5,24 +5,24 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import at.ac.uibk.model.Revenue;
-import at.ac.uibk.repository.RevenueRepository;
+import at.ac.uibk.model.Venue;
+import at.ac.uibk.repository.VenueRepository;
 
-@Service("revenueService")
-public class RevenueService {
+@Service("venueService")
+public class VenueService {
 	@Autowired
-	private RevenueRepository revenueRepository;
+	private VenueRepository venueRepository;
 
-	public Revenue getRevenue(int id) {
+	public Venue getVenue(int id) {
 
-		return revenueRepository.getRevenue(id);
+		return venueRepository.getVenue(id);
 	}
 
-	public List<Revenue> getRevenues() {
-		return revenueRepository.getRevenues();
+	public List<Venue> getRevenues() {
+		return venueRepository.getVenues();
 	}
 
-	public int createRevenue(String name, String country, String city, String address, String size) {
-		return revenueRepository.createRevenue(name, country, city, address, size);
+	public int createVenue(String name, String country, String city, String address, String size) {
+		return venueRepository.createVenue(name, country, city, address, size);
 	}
 }

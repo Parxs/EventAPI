@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import at.ac.uibk.model.Artist;
 import at.ac.uibk.model.Event;
 import at.ac.uibk.model.Navigation;
+import at.ac.uibk.model.Venue;
 import at.ac.uibk.service.ArtistService;
 import at.ac.uibk.service.EventService;
-import at.ac.uibk.service.RevenueService;
+import at.ac.uibk.service.VenueService;
 
 @RestController
 public class EventController {
@@ -27,7 +29,7 @@ public class EventController {
 	@Autowired
 	private ArtistService artistService;
 	@Autowired
-	private RevenueService revenueService;
+	private VenueService revenueService;
 
 	@RequestMapping("/init")
 	public HttpEntity<Boolean> init() {
@@ -60,6 +62,30 @@ public class EventController {
 		return new ResponseEntity<>(event, HttpStatus.OK);
 	}
 
+	@RequestMapping("/events/{id}/artist")
+	public HttpEntity<Artist> getArtistForEvents(@PathVariable("id") int id) {
+
+		Artist a = eventService.getArtistsOfEvent(id);
+		a.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
+		a.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
+				.withSelfRel());
+		a.add(linkTo(methodOn(EventController.class).getArtistForEvents(id)).withSelfRel());
+
+		return new ResponseEntity<>(a, HttpStatus.OK);
+	}
+	
+	@RequestMapping("/events/{id}/venue")
+	public HttpEntity<Venue> getVenueForEvents(@PathVariable("id") int id) {
+
+		Venue r = eventService.getVenueOfEvent(id);
+		r.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
+		r.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
+				.withSelfRel());
+		r.add(linkTo(methodOn(EventController.class).getVenueForEvents(id)).withSelfRel());
+
+		return new ResponseEntity<>(r, HttpStatus.OK);
+	}
+	
 	@RequestMapping("/events")
 	public HttpEntity<Navigation> getEvents() {
 

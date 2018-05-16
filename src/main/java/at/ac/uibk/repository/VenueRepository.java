@@ -5,40 +5,52 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import at.ac.uibk.model.Revenue;
+import at.ac.uibk.model.Venue;
 
 // TODO use real data and db
-@Service("revenueRepository")
-public class RevenueRepository {
+@Service("venueRepository")
+public class VenueRepository {
 
-	ArrayList<Revenue> revenues = new ArrayList<>();
+	public VenueRepository() {
+		createVenue(1, "olympia stadion", "Austria", "Innsbruck", "olympia straﬂe 1", "TAUSEND");
+		createVenue(2, "kleines ding", "Austria", "Innsbruck", "klein ding straﬂe 1", "net tausend");
+		createVenue(3, "mittleres halle", "Austria", "Innsbruck", "haupt straﬂe 1", "fast tausend");
+		
+	}
+	
+	ArrayList<Venue> venues = new ArrayList<>();
 
 	// TODO threadsafe solution
 	private int currentId = 100;
 
-	public Revenue getRevenue(int id) {
-		for (Revenue revenue : revenues) {
-			if (revenue.getRevenueId() == id) {
+	public Venue getVenue(int id) {
+		for (Venue revenue : venues) {
+			if (revenue.getVenueId() == id) {
 				return revenue;
 			}
 		}
 
 		if (id < 100) {
-			Revenue artist = new Revenue(id, "name" + id, "country" + id, "city" + id, "address" + id,
+			Venue artist = new Venue(id, "name" + id, "country" + id, "city" + id, "address" + id,
 					"" + id * 200 + " Personen");
-			revenues.add(artist);
+			venues.add(artist);
 			return artist;
 		}
 		return null;
 	}
 
-	public List<Revenue> getRevenues() {
-		return revenues;
+	public List<Venue> getVenues() {
+		return venues;
 	}
 
-	public int createRevenue(String name, String country, String city, String address, String size) {
-		Revenue revenue = new Revenue(currentId, name, country, city, address, size);
-		revenues.add(revenue);
+	public void createVenue(int id, String name, String country, String city, String address, String size) {
+		Venue venue = new Venue(id, name, country, city, address, size);
+		venues.add(venue);
+	}
+	
+	public int createVenue(String name, String country, String city, String address, String size) {
+		Venue venue = new Venue(currentId, name, country, city, address, size);
+		venues.add(venue);
 		currentId++;
 		return currentId - 1;
 	}

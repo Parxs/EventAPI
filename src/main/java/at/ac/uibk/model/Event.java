@@ -16,7 +16,7 @@ public class Event extends ResourceSupport {
 	private String title;
 	private String description;
 	private String startTime;
-	private int revenueId;
+	private int venueId;
 	private String country;
 	private String city;
 	private String address;
@@ -29,7 +29,7 @@ public class Event extends ResourceSupport {
 		this.title = "";
 		this.description = "";
 		this.startTime = "";
-		this.revenueId = -1;
+		this.venueId = -1;
 		this.country = "";
 		this.city = "";
 		this.address = "";
@@ -40,14 +40,14 @@ public class Event extends ResourceSupport {
 	@JsonCreator
 	public Event(@JsonProperty("eventId") int eventId, @JsonProperty("title") String title,
 			@JsonProperty("description") String description, @JsonProperty("startTime") String startTime,
-			@JsonProperty("revenueId") int revenueId, @JsonProperty("country") String country,
+			@JsonProperty("venueId") int venueId, @JsonProperty("country") String country,
 			@JsonProperty("city") String city, @JsonProperty("address") String address,
 			@JsonProperty("artistId") int artistId, @JsonProperty("artistName") String artistName) {
 		this.eventId = eventId;
 		this.title = title;
 		this.description = description;
 		this.startTime = startTime;
-		this.revenueId = revenueId;
+		this.venueId = venueId;
 		this.country = country;
 		this.city = city;
 		this.address = address;
@@ -55,13 +55,13 @@ public class Event extends ResourceSupport {
 		this.artistName = artistName;
 	}
 
-	public Event(int eventId, String title, String description, String startTime, int revenueId, int artistId) {
+	public Event(int eventId, String title, String description, String startTime, int venueId, int artistId) {
 		this();
 		this.eventId = eventId;
 		this.title = title;
 		this.description = description;
 		this.startTime = startTime;
-		this.revenueId = revenueId;
+		this.venueId = venueId;
 		this.artistId = artistId;
 	}
 

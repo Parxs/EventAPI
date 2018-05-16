@@ -15,6 +15,9 @@ public class EventRepository {
 	private int currentId = 100;
 
 	public EventRepository() {
+		this.createEvent("justin bieber concert", "a very good concert with justin bieber", "16.05.2018", 1, 1);
+		this.createEvent("lady gaga concert", "a very meh concert with lady gaga", "17.05.2018", 2, 2);
+		this.createEvent("metallica concert", "a very awesome concert with metallica", "18.05.2018", 3, 3);
 
 	}
 
