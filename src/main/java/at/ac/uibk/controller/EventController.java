@@ -160,7 +160,7 @@ public class EventController {
 		return new ResponseEntity<>(navi, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/events/search")
+	@RequestMapping(value = "/events/search", method = RequestMethod.GET)
 	public HttpEntity<GenericList<Event>> searchForEvents(
 			@RequestParam(value = "name", required = false, defaultValue = "") String name,
 			@RequestParam(value = "artistName", required = false, defaultValue = "") String artistName,
@@ -178,5 +178,4 @@ public class EventController {
 		}
 		return new ResponseEntity<>(searchForEvents, HttpStatus.OK);
 	}
-
 }
