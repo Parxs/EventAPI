@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import at.ac.uibk.model.Event;
 import at.ac.uibk.model.Venue;
 
 // TODO use real data and db
@@ -53,5 +54,34 @@ public class VenueRepository {
 		venues.add(venue);
 		currentId++;
 		return currentId - 1;
+	}
+
+	public List<Venue> searchVenue(String name, String country, String city) {
+		ArrayList<Venue> result = new ArrayList<>();
+		int fitting;
+		for (Venue venue: venues) {
+			fitting = 0;
+			if(name == "") {
+				fitting++;
+			} else {
+				fitting = venue.getName().contains(name) ? fitting + 1 : fitting;
+			}
+			
+			if(country == "") {
+				fitting++;
+			}else {
+				fitting = venue.getCountry().contains(country) ? fitting + 1 : fitting;
+			}
+			
+			if(city == "") {
+				fitting++;
+			}else {
+				fitting = venue.getCity().contains(city) ? fitting + 1 : fitting;
+			}
+			if (fitting == 3) {
+				result.add(venue);
+			}
+		}
+		return result;	
 	}
 }

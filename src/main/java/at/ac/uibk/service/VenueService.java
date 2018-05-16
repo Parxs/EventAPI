@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import at.ac.uibk.model.Artist;
+import at.ac.uibk.model.Event;
+import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Venue;
 import at.ac.uibk.repository.VenueRepository;
 
@@ -24,5 +27,11 @@ public class VenueService {
 
 	public int createVenue(String name, String country, String city, String address, String size) {
 		return venueRepository.createVenue(name, country, city, address, size);
+	}
+	
+	public GenericList<Venue> searchVenue(String name, String country, String city){
+		List<Venue> searchForVenue = venueRepository.searchVenue(name, country, city);
+		GenericList<Venue> list = new GenericList<>(searchForVenue);
+		return list;
 	}
 }
