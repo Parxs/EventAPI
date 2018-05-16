@@ -10,38 +10,59 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Event extends ResourceSupport{
+public class Event extends ResourceSupport {
 
-	private final String eventId;
-	private final String title;
-	private final String description;
-	private final String startTime;
-	private final String country;
-	private final String city;
-	private final String address;
+	private int eventId;
+	private String title;
+	private String description;
+	private String startTime;
+	private int revenueId;
+	private String country;
+	private String city;
+	private String address;
+	private int artistId;
+	private String artistName;
 
 	@JsonCreator
 	public Event() {
-    	this.eventId = "";
-    	this.title = "";
-    	this.description = "";
-    	this.startTime = "";
-    	this.country = "";
-    	this.city = "";
-    	this.address = "";
+		this.eventId = -1;
+		this.title = "";
+		this.description = "";
+		this.startTime = "";
+		this.revenueId = -1;
+		this.country = "";
+		this.city = "";
+		this.address = "";
+		this.artistId = -1;
+		this.artistName = "";
 	}
-	
-    @JsonCreator
-    public Event(@JsonProperty("eventId") String eventId, @JsonProperty("title") String title, 
-    		@JsonProperty("description") String description, @JsonProperty("startTime") String startTime, @JsonProperty("country") String country,
-    		@JsonProperty("city") String city, @JsonProperty("address") String address) {
-    	this.eventId = eventId;
-    	this.title = title;
-    	this.description = description;
-    	this.startTime = startTime;
-    	this.country = country;
-    	this.city = city;
-    	this.address = address;
-    }
-    
+
+	@JsonCreator
+	public Event(@JsonProperty("eventId") int eventId, @JsonProperty("title") String title,
+			@JsonProperty("description") String description, @JsonProperty("startTime") String startTime,
+			@JsonProperty("revenueId") int revenueId, @JsonProperty("country") String country,
+			@JsonProperty("city") String city, @JsonProperty("address") String address,
+			@JsonProperty("artistId") int artistId, @JsonProperty("artistName") String artistName) {
+		this.eventId = eventId;
+		this.title = title;
+		this.description = description;
+		this.startTime = startTime;
+		this.revenueId = revenueId;
+		this.country = country;
+		this.city = city;
+		this.address = address;
+		this.artistId = artistId;
+		this.artistName = artistName;
+	}
+
+	public Event(int eventId, String title, String description, String startTime, int revenueId, int artistId) {
+		this();
+		this.eventId = eventId;
+		this.title = title;
+		this.description = description;
+		this.startTime = startTime;
+		this.revenueId = revenueId;
+		this.artistId = artistId;
+	}
+
 }

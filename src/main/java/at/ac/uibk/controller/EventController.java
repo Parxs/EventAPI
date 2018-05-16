@@ -1,6 +1,9 @@
 package at.ac.uibk.controller;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
+import java.util.List;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -12,60 +15,85 @@ import org.springframework.web.bind.annotation.RestController;
 
 import at.ac.uibk.model.Event;
 import at.ac.uibk.model.Navigation;
+import at.ac.uibk.service.ArtistService;
 import at.ac.uibk.service.EventService;
+import at.ac.uibk.service.RevenueService;
 
 @RestController
 public class EventController {
-	
-	private static final String TEMPLATE = "Hello, %s!";
+
 	private EventService eventService = new EventService();
-	
-    @RequestMapping("/events/{id}")
-    public HttpEntity<Event> getEvents(@PathVariable("id") String id) {
+	private ArtistService artistService = new ArtistService();
+	private RevenueService revenueService = new RevenueService();
+
+	@RequestMapping("/init")
+	public HttpEntity<Boolean> init() {
+		// artistService.createArtist(0, "Informatixs", 30, "House, HipHop");
+		// artistService.createArtist(1, "Acapella", 67, "Rock");
+		// revenueService.createRevenue(0, "StadtSaal", "Austria", "Innsbruck", "AbcdWeg
+		// 12", "40 Personen");
+		// revenueService.createRevenue(1, "Baumhaus", "Deutschland", "Hamburg",
+		// "StrassenWeg 89", "4000 Personen");
+		// eventService.createEvent(0, "FarmersMarket", "Fresh beets?!", "18:00", 0, 0);
+		// eventService.createEvent(0, "Klangkonzert", "Viva la Voice", "18:00", 1, 1);
+
+		return new ResponseEntity<>(true, HttpStatus.OK);
+	}
+
+	private void addStandardNavigation(Navigation navi) {
+		navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
+		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
+				.withSelfRel());
+	}
+
+	@RequestMapping("/events/{id}")
+	public HttpEntity<Event> getEvents(@PathVariable("id") int id) {
 
 		Event event = eventService.getEvent(id);
-        event.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
-        event.add(linkTo(methodOn(EventController.class).createEvent(null, null, null, null, null, null, null)).withSelfRel());
+		event.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
+		event.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
+				.withSelfRel());
 
-        return new ResponseEntity<>(event, HttpStatus.OK);
-    }
+		return new ResponseEntity<>(event, HttpStatus.OK);
+	}
 
-    @RequestMapping("/events")
-    public HttpEntity<Navigation> getEvents() {
+	@RequestMapping("/events")
+	public HttpEntity<Navigation> getEvents() {
 
-		Navigation navi= new Navigation("Operations for Events");
-		navi.add(linkTo(methodOn(EventController.class).getEvents("1")).withSelfRel());
-    	navi.add(linkTo(methodOn(EventController.class).createEvent("eventId", "title", "description", "startTime", "country", "city", "address")).withSelfRel());
+		Navigation navi = new Navigation("Operations for Events");
+		List<Event> events = eventService.getEvents();
+		addStandardNavigation(navi);
+		if (events != null) {
+			for (Event event : events) {
+				navi.add(linkTo(methodOn(EventController.class).getEvents(event.getEventId())).withSelfRel());
+			}
+		}
 
-        return new ResponseEntity<>(navi, HttpStatus.OK);
-    }
-    
-    @RequestMapping("/events/new")
-    public HttpEntity<Navigation> createEvent(
-            @RequestParam(value = "id", required = true, defaultValue = "") String eventId,
-            @RequestParam(value = "title", required = true, defaultValue = "") String title,
-            @RequestParam(value = "description", required = true, defaultValue = "") String description,
-            @RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
-            @RequestParam(value = "country", required = true, defaultValue = "") String country,
-            @RequestParam(value = "city", required = true, defaultValue = "") String city,
-            @RequestParam(value = "address", required = true, defaultValue = "") String address) {
-    	
+		return new ResponseEntity<>(navi, HttpStatus.OK);
+	}
+
+	@RequestMapping("/events/new")
+	public HttpEntity<Navigation> createEvent(
+			@RequestParam(value = "title", required = true, defaultValue = "") String title,
+			@RequestParam(value = "description", required = true, defaultValue = "") String description,
+			@RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
+			@RequestParam(value = "revenueId", required = true, defaultValue = "") int revenueId,
+			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId) {
+
 		Navigation navi = new Navigation();
-    	if(eventService.createEvent(eventId, title, description, startTime, country, city, address)) {
-    		navi.setContent("Event created");
-            navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
-            navi.add(linkTo(methodOn(EventController.class).getEvents("1")).withSelfRel());
-        	navi.add(linkTo(methodOn(EventController.class).createEvent("eventId", "title", "description", "startTime", "country", "city", "address")).withSelfRel());
+		int eventId = eventService.createEvent(title, description, startTime, revenueId, artistId);
+		if (eventId > -1) {
+			navi.setContent("Event created");
+			addStandardNavigation(navi);
+			navi.add(linkTo(methodOn(EventController.class).getEvents(eventId)).withSelfRel());
 
-            return new ResponseEntity<>(navi, HttpStatus.OK);
-    	}else {
-    		navi.setContent("Failed to create Event");
-            navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
-            navi.add(linkTo(methodOn(EventController.class).getEvents("1")).withSelfRel());
-        	navi.add(linkTo(methodOn(EventController.class).createEvent("eventId", "title", "description", "startTime", "country", "city", "address")).withSelfRel());
+			return new ResponseEntity<>(navi, HttpStatus.OK);
+		} else {
+			navi.setContent("Failed to create Event");
+			addStandardNavigation(navi);
 
-            return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
-    	}
-    }
+			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
+		}
+	}
 
 }
