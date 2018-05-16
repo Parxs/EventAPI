@@ -58,9 +58,7 @@ public class VenueController {
 			Navigation eventError = new Navigation("Venue not found");
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 		}
-		venue.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
-		venue.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
-				.withSelfRel());
+		addStandardNavigation(venue);
 
 		return new ResponseEntity<>(venue, HttpStatus.OK);
 	}
@@ -71,16 +69,12 @@ public class VenueController {
 		boolean ok = venueService.deleteVenue(id);
 		if (!ok) {
 			Navigation navi = new Navigation("Venue " + id + " not found");
-			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
-			navi.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
-					.withSelfRel());
+			addStandardNavigation(navi);
 			return new ResponseEntity<>(navi, HttpStatus.NOT_FOUND);
 
 		} else {
 			Navigation navi = new Navigation("Venue Deleted");
-			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
-			navi.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
-					.withSelfRel());
+			addStandardNavigation(navi);
 
 			return new ResponseEntity<>(navi, HttpStatus.OK);
 		}
@@ -113,13 +107,11 @@ public class VenueController {
 			navi.setContent("Venue created");
 			addStandardNavigation(navi);
 			navi.add(linkTo(methodOn(VenueController.class).getVenue(id)).withSelfRel());
-			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.OK);
 		} else {
 			navi.setContent("Failed to create Venue");
 			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
@@ -139,13 +131,11 @@ public class VenueController {
 			navi.setContent("Venue updated");
 			addStandardNavigation(navi);
 			navi.add(linkTo(methodOn(VenueController.class).getVenue(id)).withSelfRel());
-			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.OK);
 		} else {
 			navi.setContent("Failed to update Venue");
 			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
@@ -158,7 +148,7 @@ public class VenueController {
 			@RequestParam(value = "city", required = false, defaultValue = "") String city) {
 
 		GenericList<Venue> searchForVenue = venueService.searchVenue(name, country, city);
-		searchForVenue.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
+		addStandardNavigation(searchForVenue);
 		searchForVenue.add(linkTo(methodOn(VenueController.class).searchForVenue(name, country, city)).withSelfRel());
 		if (searchForVenue != null) {
 			for (Venue venue : searchForVenue.getList()) {
