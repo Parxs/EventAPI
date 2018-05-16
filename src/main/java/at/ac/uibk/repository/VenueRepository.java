@@ -7,20 +7,18 @@ import org.springframework.stereotype.Service;
 
 import at.ac.uibk.model.Venue;
 
-// TODO use real data and db
 @Service("venueRepository")
 public class VenueRepository {
 
 	public VenueRepository() {
-		createVenue(1, "olympia stadion", "Austria", "Innsbruck", "olympia strasse 1", "TAUSEND");
-		createVenue(2, "kleines ding", "Austria", "Innsbruck", "klein ding strasse 1", "net tausend");
-		createVenue(3, "mittleres halle", "Austria", "Innsbruck", "haupt strasse 1", "fast tausend");
+		createVenue(1, "Olympia Stadion", "Austria", "Innsbruck", "Olympia Strasse 1", "TAUSEND");
+		createVenue(2, "Kleines Ding", "Austria", "Innsbruck", "Klein Ding strasse 1", "net tausend");
+		createVenue(3, "Mittleres Halle", "Austria", "Innsbruck", "Haupt Strasse 1", "fast tausend");
 
 	}
 
 	ArrayList<Venue> venues = new ArrayList<>();
 
-	// TODO threadsafe solution
 	private int currentId = 100;
 
 	public Venue getVenue(int id) {

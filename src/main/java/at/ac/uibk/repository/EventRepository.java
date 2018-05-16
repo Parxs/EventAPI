@@ -12,13 +12,12 @@ import at.ac.uibk.model.Event;
 public class EventRepository {
 	ArrayList<Event> events = new ArrayList<>();
 
-	// TODO threadsafe solution
 	private int currentId = 100;
 
 	public EventRepository() {
-		this.createEvent("justin bieber concert", "a very good concert with justin bieber", "16.05.2018", 1, 1);
-		this.createEvent("lady gaga concert", "a very meh concert with lady gaga", "17.05.2018", 2, 2);
-		this.createEvent("metallica concert", "a very awesome concert with metallica", "18.05.2018", 3, 3);
+		this.createEvent("Justin Bieber Concert", "A very good concert with Justin Bieber", "16.05.2018", 1, 1);
+		this.createEvent("Lady Gaga Concert", "A very meh concert with Lady Gaga", "17.05.2018", 2, 2);
+		this.createEvent("Metallica Concert", "A awesome concert with Metallica", "18.05.2018", 3, 3);
 
 	}
 
@@ -35,12 +34,8 @@ public class EventRepository {
 			return event;
 		}
 		return null;
-		// TODO use real data and db
-		// return new Event(id, "farmers market", "a market with farmers", "2018-05-05
-		// 12:00:00", "austria", "innsbruck",
-		// "hauptstrasse 7");
 	}
-	
+
 	public boolean deleteEvent(int id) {
 		Event toRemove = this.getEvent(id);
 		if (toRemove == null)
@@ -61,7 +56,7 @@ public class EventRepository {
 
 		return currentId - 1;
 	}
-	
+
 	public boolean updateEvent(int id, String title, String description, String startTime, int venueId, int artistId) {
 		this.events.remove(this.getEvent(id));
 		Event event = new Event(id, title, description, startTime, venueId, artistId);

@@ -22,8 +22,6 @@ import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Navigation;
 import at.ac.uibk.service.ArtistService;
 
-//TODO real rest via crud
-
 @RestController
 public class ArtistController {
 

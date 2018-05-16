@@ -7,19 +7,17 @@ import org.springframework.stereotype.Service;
 
 import at.ac.uibk.model.Artist;
 
-// TODO use real data and db
 @Service("ArtistRepository")
 public class ArtistRepository {
 
 	ArrayList<Artist> artists = new ArrayList<>();
 
 	public ArtistRepository() {
-		createArtist(1, "justin Bieber", 12, "pop");
-		createArtist(2, "lady gaga", 30, "weird pop");
-		createArtist(3, "metallica", 50, "METAL");
+		createArtist(1, "Justin Bieber", 12, "Pop");
+		createArtist(2, "Lady Gaga", 30, "Weird Pop");
+		createArtist(3, "Metallica", 50, "METAL");
 	}
 
-	// TODO threadsafe solution
 	private int currentId = 100;
 
 	public Artist getArtist(int id) {
@@ -45,7 +43,7 @@ public class ArtistRepository {
 		Artist artist = new Artist(id, name, age, genre);
 		artists.add(artist);
 	}
-	
+
 	public boolean updateArtist(int id, String name, int age, String genre) {
 		this.artists.remove(this.getArtist(id));
 		Artist artist = new Artist(id, name, age, genre);
@@ -55,12 +53,12 @@ public class ArtistRepository {
 
 	public boolean deleteArtist(int id) {
 		Artist toRemove = this.getArtist(id);
-		if(toRemove == null)
+		if (toRemove == null)
 			return false;
 		this.artists.remove(toRemove);
 		return true;
 	}
-	
+
 	public int createArtist(String name, int age, String genre) {
 
 		Artist artist = new Artist(currentId, name, age, genre);
