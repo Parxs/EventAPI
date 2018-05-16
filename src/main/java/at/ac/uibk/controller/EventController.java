@@ -21,33 +21,12 @@ import at.ac.uibk.model.Event;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Navigation;
 import at.ac.uibk.model.Venue;
-import at.ac.uibk.service.ArtistService;
 import at.ac.uibk.service.EventService;
-import at.ac.uibk.service.VenueService;
 
 @RestController
 public class EventController {
 	@Autowired
 	private EventService eventService;
-	@Autowired
-	private ArtistService artistService;
-	@Autowired
-	private VenueService venueService;
-
-
-	@RequestMapping("/init")
-	public HttpEntity<Boolean> init() {
-		// artistService.createArtist(0, "Informatixs", 30, "House, HipHop");
-		// artistService.createArtist(1, "Acapella", 67, "Rock");
-		// revenueService.createRevenue(0, "StadtSaal", "Austria", "Innsbruck", "AbcdWeg
-		// 12", "40 Personen");
-		// revenueService.createRevenue(1, "Baumhaus", "Deutschland", "Hamburg",
-		// "StrassenWeg 89", "4000 Personen");
-		// eventService.createEvent(0, "FarmersMarket", "Fresh beets?!", "18:00", 0, 0);
-		// eventService.createEvent(0, "Klangkonzert", "Viva la Voice", "18:00", 1, 1);
-
-		return new ResponseEntity<>(true, HttpStatus.OK);
-	}
 
 	private void addStandardNavigation(ResourceSupport navi) {
 		navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
@@ -65,7 +44,7 @@ public class EventController {
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 
 		}
-		
+
 		addStandardNavigation(event);
 		return new ResponseEntity<>(event, HttpStatus.OK);
 	}
@@ -179,7 +158,8 @@ public class EventController {
 
 		GenericList<Event> searchForEvents = eventService.searchEvent(name, artistName, venueName);
 		addStandardNavigation(searchForEvents);
-		searchForEvents.add(linkTo(methodOn(EventController.class).searchForEvents(name, artistName, venueName)).withSelfRel());
+		searchForEvents.add(
+				linkTo(methodOn(EventController.class).searchForEvents(name, artistName, venueName)).withSelfRel());
 
 		if (searchForEvents != null) {
 			for (Event event : searchForEvents.getList()) {
