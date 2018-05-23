@@ -29,9 +29,9 @@ public class EventController {
 	private EventService eventService;
 
 	private void addStandardNavigation(ResourceSupport navi) {
-		navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
+		navi.add(linkTo(methodOn(EventController.class).getEvents()).withRel("events"));
 		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
-				.withSelfRel());
+				.withRel("create"));
 	}
 
 	@RequestMapping(value = "/events/{id}", method = RequestMethod.GET)
@@ -46,6 +46,9 @@ public class EventController {
 		}
 
 		addStandardNavigation(event);
+		event.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
+		event.add(linkTo(methodOn(VenueController.class).getVenue(event.getVenueId())).withRel("venues"));
+		event.add(linkTo(methodOn(ArtistController.class).getArtist(event.getArtistId())).withRel("artists"));
 		return new ResponseEntity<>(event, HttpStatus.OK);
 	}
 
@@ -117,9 +120,10 @@ public class EventController {
 	public HttpEntity<Artist> getArtistForEvents(@PathVariable("id") int id) {
 
 		Artist a = eventService.getArtistsOfEvent(id);
-		a.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
 		addStandardNavigation(a);
+		a.add(linkTo(methodOn(EventController.class).getEvents(id)).withRel("events"));
 		a.add(linkTo(methodOn(EventController.class).getArtistForEvents(id)).withSelfRel());
+		a.add(linkTo(methodOn(ArtistController.class).getArtist(a.getArtistId())).withRel("artists"));
 
 		return new ResponseEntity<>(a, HttpStatus.OK);
 	}
@@ -128,9 +132,10 @@ public class EventController {
 	public HttpEntity<Venue> getVenueForEvents(@PathVariable("id") int id) {
 
 		Venue r = eventService.getVenueOfEvent(id);
-		r.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
+		r.add(linkTo(methodOn(EventController.class).getEvents(id)).withRel("events"));
 		addStandardNavigation(r);
 		r.add(linkTo(methodOn(EventController.class).getVenueForEvents(id)).withSelfRel());
+		r.add(linkTo(methodOn(VenueController.class).getVenue(r.getVenueId())).withRel("venues"));
 
 		return new ResponseEntity<>(r, HttpStatus.OK);
 	}
@@ -140,10 +145,12 @@ public class EventController {
 
 		Navigation navi = new Navigation("Operations for Events");
 		List<Event> events = eventService.getEvents();
-		addStandardNavigation(navi);
+		navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
+		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
+				.withRel("create"));
 		if (events != null) {
 			for (Event event : events) {
-				navi.add(linkTo(methodOn(EventController.class).getEvents(event.getEventId())).withSelfRel());
+				navi.add(linkTo(methodOn(EventController.class).getEvents(event.getEventId())).withRel("event"));
 			}
 		}
 
