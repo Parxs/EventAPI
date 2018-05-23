@@ -16,6 +16,7 @@ public class ArtistRepository {
 		createArtist(1, "Justin Bieber", 12, "Pop");
 		createArtist(2, "Lady Gaga", 30, "Weird Pop");
 		createArtist(3, "Metallica", 50, "METAL");
+		createArtist(4, "Joondalup event", 0, "various");
 	}
 
 	private int currentId = 100;

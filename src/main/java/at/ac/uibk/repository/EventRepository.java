@@ -1,9 +1,16 @@
 package at.ac.uibk.repository;
 
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import javax.print.attribute.standard.DateTimeAtProcessing;
+
+import org.apache.tomcat.jni.Time;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Service;
 
 import at.ac.uibk.model.Event;
@@ -18,7 +25,32 @@ public class EventRepository {
 		this.createEvent("Justin Bieber Concert", "A very good concert with Justin Bieber", "16.05.2018", 1, 1);
 		this.createEvent("Lady Gaga Concert", "A very meh concert with Lady Gaga", "17.05.2018", 2, 2);
 		this.createEvent("Metallica Concert", "A awesome concert with Metallica", "18.05.2018", 3, 3);
+		
+        JSONParser parser = new JSONParser();
+        try {
+        	Object obj = parser.parse(new FileReader("events.json"));
+        	JSONObject jsonObj = (JSONObject) obj;
+			JSONArray jsonArr = (JSONArray)((JSONObject)jsonObj.get("body")).get("Events");
+			
+			for (int i = 0; i < jsonArr.size(); i++) {
+				JSONObject event = (JSONObject) jsonArr.get(i);
+				JSONObject venue = (JSONObject)((JSONArray)event.get("Venues")).get(0);
+				
+				int id = Integer.parseInt(event.get("id").toString());
+				String title = event.get("name").toString();
+				int venueId = Integer.parseInt(venue.get("id").toString());
+				String description = event.get("description").toString();
+				String startTime = "23.05.2018";
+				
+				updateEvent(id, title, description, startTime, venueId, 4);
+			}
 
+
+        	
+        }catch (Exception e) {
+        	e.printStackTrace();
+		}
+        System.out.println("we have " + events.size() + " Events");
 	}
 
 	public Event getEvent(int id) {
@@ -28,11 +60,11 @@ public class EventRepository {
 			}
 		}
 
-		if (id < 100) {
-			Event event = new Event(id, "title", "description", "startTime", 0, 0);
-			events.add(event);
-			return event;
-		}
+//		if (id < 100) {
+//			Event event = new Event(id, "title", "description", "startTime", 0, 0);
+//			events.add(event);
+//			return event;
+//		}
 		return null;
 	}
 
