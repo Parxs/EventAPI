@@ -24,14 +24,19 @@ public class CategoryRepository {
 			
 			for (int i = 0; i < jsonArr.size(); i++) {
 				JSONObject event = (JSONObject) jsonArr.get(i);
-				JSONObject category = (JSONObject)((JSONArray)event.get("Categories")).get(0);
-				
-				int id = Integer.parseInt(category.get("id").toString());
-				String name = category.get("name").toString();
-				String identifier = category.get("identifier").toString();
-				String description = category.get("description").toString();
-				
-				updateCategory(id, name, identifier, description);
+				JSONArray cats = (JSONArray)event.get("Categories");
+				for(int j = 0; j < cats.size(); j++) {
+					
+					JSONObject category = (JSONObject)cats.get(j);
+					
+					int id = Integer.parseInt(category.get("id").toString());
+					String name = category.get("name").toString();
+					String identifier = category.get("identifier").toString();
+					String description = category.get("description").toString();
+					
+					updateCategory(id, name, identifier, description);
+				}
+
 			}
 
 
