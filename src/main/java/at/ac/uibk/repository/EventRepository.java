@@ -40,8 +40,8 @@ public class EventRepository {
 				String title = event.get("name").toString();
 				int venueId = Integer.parseInt(venue.get("id").toString());
 				String description = event.get("description").toString();
-				String startTime = "23.05.2018";
-				
+				JSONObject startTimeObject = (JSONObject)((JSONArray)event.get("Datetimes")).get(0);
+				String startTime = startTimeObject.get("event_start").toString();
 				updateEvent(id, title, description, startTime, venueId, 4);
 			}
 
