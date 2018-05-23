@@ -78,7 +78,15 @@ public class VenueRepository {
 		this.venues.remove(venue);
 		return true;
 	}
-
+	
+	public void removeVenue(int id) {
+		for (int i = 0; i < venues.size(); i++) {
+			if(venues.get(i).getVenueId() == id) {
+				venues.remove(i);
+				return;
+			}
+		}
+	}
 	public List<Venue> getVenues() {
 		return venues;
 	}
@@ -96,7 +104,7 @@ public class VenueRepository {
 	}
 
 	public boolean updateVenue(int id, String name, String country, String city, String address, String size) {
-		this.venues.remove(this.getVenue(id));
+		this.removeVenue(id);
 		Venue venue = new Venue(id, name, country, city, address, size);
 		venues.add(venue);
 		return true;

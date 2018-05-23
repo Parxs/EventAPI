@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import javax.print.attribute.standard.DateTimeAtProcessing;
 
-import org.apache.tomcat.jni.Time;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -75,6 +73,15 @@ public class EventRepository {
 		this.events.remove(toRemove);
 		return true;
 	}
+	
+	public void removeEvent(int id) {
+		for (int i = 0; i < events.size(); i++) {
+			if(events.get(i).getEventId() == id) {
+				events.remove(i);
+				return;
+			}
+		}
+	}
 
 	public List<Event> getEvents() {
 		return events;
@@ -90,7 +97,7 @@ public class EventRepository {
 	}
 
 	public boolean updateEvent(int id, String title, String description, String startTime, int venueId, int artistId) {
-		this.events.remove(this.getEvent(id));
+		this.removeEvent(id);
 		Event event = new Event(id, title, description, startTime, venueId, artistId);
 		events.add(event);
 		return true;

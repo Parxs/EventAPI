@@ -46,7 +46,7 @@ public class ArtistRepository {
 	}
 
 	public boolean updateArtist(int id, String name, int age, String genre) {
-		this.artists.remove(this.getArtist(id));
+		this.removeArtist(id);		
 		Artist artist = new Artist(id, name, age, genre);
 		artists.add(artist);
 		return true;
@@ -58,6 +58,15 @@ public class ArtistRepository {
 			return false;
 		this.artists.remove(toRemove);
 		return true;
+	}
+	
+	public void removeArtist(int id) {
+		for (int i = 0; i < artists.size(); i++) {
+			if(artists.get(i).getArtistId() == id) {
+				artists.remove(i);
+				return;
+			}
+		}
 	}
 
 	public int createArtist(String name, int age, String genre) {
