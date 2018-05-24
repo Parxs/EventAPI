@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.ac.uibk.model.Category;
-import at.ac.uibk.model.Event;
 import at.ac.uibk.model.Navigation;
 import at.ac.uibk.service.CategoryService;
 
@@ -26,43 +25,45 @@ public class CategoryController {
 	@Autowired
 	private CategoryService categoryService;
 
-	
 	private void addStandardNavigation(ResourceSupport navi) {
 		navi.add(linkTo(methodOn(CategoryController.class).getCategories()).withRel("categories"));
 		navi.add(linkTo(methodOn(CategoryController.class).createCategory(1, "name", "identifier", "description"))
 				.withRel("create"));
 	}
-	
-	@RequestMapping(value= "/categories/{id}", method = RequestMethod.GET)
-	public HttpEntity<ResourceSupport> getCategory(@PathVariable("id") int id){
-		
+
+	@RequestMapping(value = "/categories/{id}", method = RequestMethod.GET)
+	public HttpEntity<ResourceSupport> getCategory(@PathVariable("id") int id) {
+
 		Category cat = categoryService.getCategory(id);
-		if(cat == null) {
+		if (cat == null) {
 			Navigation categoryError = new Navigation("Category not found");
 			addStandardNavigation(categoryError);
 
 			return new ResponseEntity<>(categoryError, HttpStatus.NOT_FOUND);
 		}
 		cat.add(linkTo(methodOn(CategoryController.class).getCategories()).withRel("categories"));
+		cat.add(linkTo(methodOn(CategoryController.class).getCategory(id)).withSelfRel());
+
 		return new ResponseEntity<ResourceSupport>(cat, HttpStatus.OK);
 	}
-	
-	@RequestMapping(value= "/categories", method = RequestMethod.GET)
-	public HttpEntity<ResourceSupport> getCategories(){
+
+	@RequestMapping(value = "/categories", method = RequestMethod.GET)
+	public HttpEntity<ResourceSupport> getCategories() {
 		Navigation navi = new Navigation("Operations for Categories");
 		List<Category> categories = categoryService.getCategories();
-		
+
 		navi.add(linkTo(methodOn(CategoryController.class).getCategories()).withSelfRel());
 		navi.add(linkTo(methodOn(CategoryController.class).createCategory(1, "name", "identifier", "description"))
 				.withRel("create"));
 		if (categories != null) {
 			for (Category cat : categories) {
-				navi.add(linkTo(methodOn(CategoryController.class).getCategory(cat.getCategoryId())).withRel("category"));
+				navi.add(linkTo(methodOn(CategoryController.class).getCategory(cat.getCategoryId()))
+						.withRel("category"));
 			}
 		}
 		return new ResponseEntity<ResourceSupport>(navi, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/categories", method = RequestMethod.POST)
 	public HttpEntity<Navigation> createCategory(
 			@RequestParam(value = "id", required = true, defaultValue = "1") int id,
@@ -79,7 +80,7 @@ public class CategoryController {
 		return new ResponseEntity<>(navi, HttpStatus.OK);
 
 	}
-	
+
 	@RequestMapping(value = "/categories/{id}", method = RequestMethod.DELETE)
 	public HttpEntity<Navigation> deleteCategories(@PathVariable("id") int id) {
 		boolean ok = categoryService.deleteCategory(id);
@@ -95,7 +96,7 @@ public class CategoryController {
 			return new ResponseEntity<>(navi, HttpStatus.OK);
 		}
 	}
-	
+
 	@RequestMapping(value = "/categories/{id}", method = RequestMethod.PUT)
 	public HttpEntity<Navigation> updateCategories(@PathVariable("id") int id,
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
@@ -117,5 +118,5 @@ public class CategoryController {
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
 	}
-	
+
 }

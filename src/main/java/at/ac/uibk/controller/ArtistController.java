@@ -29,8 +29,8 @@ public class ArtistController {
 	private ArtistService artistService;
 
 	private void addStandardNavigation(ResourceSupport rs) {
-		rs.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withSelfRel());
-		rs.add(linkTo(methodOn(ArtistController.class).searchForArtist("name", 18, "genre")).withSelfRel());
+		rs.add(linkTo(methodOn(ArtistController.class).getArtists()).withRel("artists"));
+		rs.add(linkTo(methodOn(ArtistController.class).createArtist("name", 18, "genre")).withRel("create"));
 	}
 
 	@RequestMapping(value = "/artists", method = RequestMethod.GET)
@@ -55,8 +55,10 @@ public class ArtistController {
 		GenericList<Event> eventsOfArtist = artistService.getEventsOfArtist(id);
 		addStandardNavigation(eventsOfArtist);
 		for (Event event : eventsOfArtist.getList()) {
-			eventsOfArtist.add(linkTo(methodOn(EventController.class).getEvents(event.getEventId())).withSelfRel());
+			eventsOfArtist.add(linkTo(methodOn(EventController.class).getEvents(event.getEventId())).withRel("events"));
 		}
+		eventsOfArtist.add(linkTo(methodOn(ArtistController.class).getAllEvents(id)).withSelfRel());
+		eventsOfArtist.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withRel("artist"));
 
 		return new ResponseEntity<>(eventsOfArtist, HttpStatus.OK);
 	}
@@ -69,7 +71,9 @@ public class ArtistController {
 			Navigation eventError = new Navigation("Artist not found");
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 		}
+		addStandardNavigation(artist);
 		artist.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
+		artist.add(linkTo(methodOn(ArtistController.class).getAllEvents(id)).withRel("events.artist"));
 
 		return new ResponseEntity<>(artist, HttpStatus.OK);
 	}
@@ -86,13 +90,11 @@ public class ArtistController {
 			navi.setContent("Artist created");
 			addStandardNavigation(navi);
 			navi.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withSelfRel());
-			navi.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.OK);
 		} else {
 			navi.setContent("Failed to create Artist");
 			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}
@@ -110,13 +112,12 @@ public class ArtistController {
 			navi.setContent("Artist updated");
 			addStandardNavigation(navi);
 			navi.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withSelfRel());
-			navi.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.OK);
 		} else {
 			navi.setContent("Failed to update Artist");
 			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
+			navi.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withSelfRel());
 
 			return new ResponseEntity<>(navi, HttpStatus.EXPECTATION_FAILED);
 		}

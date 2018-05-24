@@ -29,9 +29,9 @@ public class VenueController {
 	private VenueService venueService;
 
 	private void addStandardNavigation(ResourceSupport rs) {
-		rs.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
+		rs.add(linkTo(methodOn(VenueController.class).getVenues()).withRel("venues"));
 		rs.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
-				.withSelfRel());
+				.withRel("create"));
 	}
 
 	@RequestMapping(value = "/venues", method = RequestMethod.GET)
@@ -39,12 +39,14 @@ public class VenueController {
 
 		Navigation navi = new Navigation("Operations for Venues");
 
-		addStandardNavigation(navi);
+		navi.add(linkTo(methodOn(VenueController.class).getVenues()).withSelfRel());
+		navi.add(linkTo(methodOn(VenueController.class).createVenue("name", "country", "city", "address", "size"))
+				.withRel("create"));
 
 		List<Venue> venues = venueService.getRevenues();
 		if (venues != null) {
 			for (Venue venue : venues) {
-				navi.add(linkTo(methodOn(VenueController.class).getVenue(venue.getVenueId())).withSelfRel());
+				navi.add(linkTo(methodOn(VenueController.class).getVenue(venue.getVenueId())).withRel("venue"));
 			}
 		}
 		return new ResponseEntity<>(navi, HttpStatus.OK);
@@ -59,6 +61,8 @@ public class VenueController {
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 		}
 		addStandardNavigation(venue);
+		venue.add(linkTo(methodOn(VenueController.class).getVenue(id)).withSelfRel());
+		venue.add(linkTo(methodOn(VenueController.class).getArtistsInVenue(id)).withRel("venues.artists"));
 
 		return new ResponseEntity<>(venue, HttpStatus.OK);
 	}
@@ -87,7 +91,7 @@ public class VenueController {
 		addStandardNavigation(list);
 
 		for (Artist artist : list.getList()) {
-			list.add(linkTo(methodOn(ArtistController.class).getArtist(artist.getArtistId())).withSelfRel());
+			list.add(linkTo(methodOn(ArtistController.class).getArtist(artist.getArtistId())).withRel("artist"));
 		}
 
 		return new ResponseEntity<>(list, HttpStatus.OK);
