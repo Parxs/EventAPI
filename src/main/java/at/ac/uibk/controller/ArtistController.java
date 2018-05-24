@@ -156,9 +156,4 @@ public class ArtistController {
 		return new ResponseEntity<>(searchForArtist, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/getFail", method = RequestMethod.POST)
-	public HttpEntity<Void> getFail() {
-		return new ResponseEntity<>(null, HttpStatus.OK);
-	}
-
 }
