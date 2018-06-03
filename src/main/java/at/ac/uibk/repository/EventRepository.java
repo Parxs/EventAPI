@@ -20,9 +20,9 @@ public class EventRepository {
 	private int currentId = 100;
 
 	public EventRepository() {
-		this.createEvent("Justin Bieber Concert", "A very good concert with Justin Bieber", "16.05.2018", 1, 1);
-		this.createEvent("Lady Gaga Concert", "A very meh concert with Lady Gaga", "17.05.2018", 2, 2);
-		this.createEvent("Metallica Concert", "A awesome concert with Metallica", "18.05.2018", 3, 3);
+		this.createEvent("Justin Bieber Concert", "A very good concert with Justin Bieber", "16.05.2018", 1, 1, 1);
+		this.createEvent("Lady Gaga Concert", "A very meh concert with Lady Gaga", "17.05.2018", 2, 2, 1);
+		this.createEvent("Metallica Concert", "A awesome concert with Metallica", "18.05.2018", 3, 3, 1);
 		
         JSONParser parser = new JSONParser();
         try {
@@ -40,7 +40,14 @@ public class EventRepository {
 				String description = event.get("description").toString();
 				JSONObject startTimeObject = (JSONObject)((JSONArray)event.get("Datetimes")).get(0);
 				String startTime = startTimeObject.get("event_start").toString();
-				updateEvent(id, title, description, startTime, venueId, 4);
+				JSONArray cats = (JSONArray)event.get("Categories");
+				ArrayList<Integer> categoryIds = new ArrayList<Integer>();
+				for (int j = 0; j < cats.size(); j++) {
+					JSONObject JsonCategory = (JSONObject)cats.get(j);
+					categoryIds.add(Integer.parseInt(JsonCategory.get("id").toString()));
+				}
+				
+				updateEvent(id, title, description, startTime, venueId, 4, categoryIds);
 			}
 
 
@@ -87,18 +94,34 @@ public class EventRepository {
 		return events;
 	}
 
-	public int createEvent(String title, String description, String startTime, int venueId, int artistId) {
+	public int createEvent(String title, String description, String startTime, int venueId, int artistId, int categoryId) {
 
-		Event event = new Event(currentId, title, description, startTime, venueId, artistId);
+		Event event = new Event(currentId, title, description, startTime, venueId, artistId, categoryId);
+		currentId++;
+		events.add(event);
+
+		return currentId - 1;
+	}
+	
+	public int createEvent(String title, String description, String startTime, int venueId, int artistId, ArrayList<Integer> categoryIds) {
+
+		Event event = new Event(currentId, title, description, startTime, venueId, artistId, categoryIds);
 		currentId++;
 		events.add(event);
 
 		return currentId - 1;
 	}
 
-	public boolean updateEvent(int id, String title, String description, String startTime, int venueId, int artistId) {
+	public boolean updateEvent(int id, String title, String description, String startTime, int venueId, int artistId, int categoryId) {
 		this.removeEvent(id);
-		Event event = new Event(id, title, description, startTime, venueId, artistId);
+		Event event = new Event(id, title, description, startTime, venueId, artistId, categoryId);
+		events.add(event);
+		return true;
+	}
+	
+	public boolean updateEvent(int id, String title, String description, String startTime, int venueId, int artistId, ArrayList<Integer> categoryIds) {
+		this.removeEvent(id);
+		Event event = new Event(id, title, description, startTime, venueId, artistId, categoryIds);
 		events.add(event);
 		return true;
 	}

@@ -16,6 +16,7 @@ public class CategoryRepository {
 	ArrayList<Category> categories = new ArrayList<>();
 	
 	public CategoryRepository() {
+		this.categories.add(new Category(1,"Concert","various concert", "some sort of musical concert"));
         JSONParser parser = new JSONParser();
         try {
         	Object obj = parser.parse(new FileReader("events.json"));

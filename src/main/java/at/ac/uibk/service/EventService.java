@@ -1,5 +1,6 @@
 package at.ac.uibk.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,9 @@ import at.ac.uibk.model.Artist;
 import at.ac.uibk.model.Event;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Venue;
+import at.ac.uibk.model.Category;
 import at.ac.uibk.repository.ArtistRepository;
+import at.ac.uibk.repository.CategoryRepository;
 import at.ac.uibk.repository.EventRepository;
 import at.ac.uibk.repository.VenueRepository;
 
@@ -21,6 +24,8 @@ public class EventService {
 	private ArtistRepository artistRepository;
 	@Autowired
 	private VenueRepository venueRepository;
+	@Autowired
+	private CategoryRepository categoryRepository;
 
 	public EventService() {
 	}
@@ -40,15 +45,24 @@ public class EventService {
 		return eventRepository.getEvents();
 	}
 
-	public int createEvent(String title, String description, String startTime, int revenueId, int artistId) {
-		return eventRepository.createEvent(title, description, startTime, revenueId, artistId);
+	public int createEvent(String title, String description, String startTime, int revenueId, int artistId, int categoryId) {
+		return eventRepository.createEvent(title, description, startTime, revenueId, artistId, categoryId);
+	}
+
+	public int createEvent(String title, String description, String startTime, int revenueId, int artistId, ArrayList<Integer> categoryIds) {
+		return eventRepository.createEvent(title, description, startTime, revenueId, artistId, categoryIds);
+	}
+	
+	public boolean updateEvent(int id, String title, String description, String startTime, int revenueId,
+			int artistId, int categoryId) {
+		return eventRepository.updateEvent(id, title, description, startTime, revenueId, artistId, categoryId);
 	}
 
 	public boolean updateEvent(int id, String title, String description, String startTime, int revenueId,
-			int artistId) {
-		return eventRepository.updateEvent(id, title, description, startTime, revenueId, artistId);
+			int artistId, ArrayList<Integer>categoryIds) {
+		return eventRepository.updateEvent(id, title, description, startTime, revenueId, artistId, categoryIds);
 	}
-
+	
 	public Artist getArtistsOfEvent(int id) {
 		Event e = eventRepository.getEvent(id);
 		return artistRepository.getArtist(e.getArtistId());
@@ -59,6 +73,14 @@ public class EventService {
 		return venueRepository.getVenue(e.getVenueId());
 	}
 
+	public GenericList<Category> getCategoriesOfEvent(int id){
+		Event event = eventRepository.getEvent(id);
+		ArrayList<Category> ret = new ArrayList<Category>();
+		for (int catId : event.getCategoryIds()) {
+			ret.add(categoryRepository.getCategory(catId));
+		}
+		return new GenericList<>(ret);
+	}
 	public GenericList<Event> searchEvent(String name, String artistName, String venueName) {
 		List<Artist> artistList = artistRepository.searchForArtist(name, -1, "");
 		int artistId = -1;

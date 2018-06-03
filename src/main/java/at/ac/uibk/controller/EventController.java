@@ -3,6 +3,7 @@ package at.ac.uibk.controller;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.ac.uibk.model.Artist;
+import at.ac.uibk.model.Category;
 import at.ac.uibk.model.Event;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Navigation;
@@ -30,7 +32,7 @@ public class EventController {
 
 	private void addStandardNavigation(ResourceSupport navi) {
 		navi.add(linkTo(methodOn(EventController.class).getEvents()).withRel("events"));
-		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
+		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0, 0))
 				.withRel("create"));
 	}
 
@@ -49,6 +51,7 @@ public class EventController {
 		event.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
 		event.add(linkTo(methodOn(VenueController.class).getVenue(event.getVenueId())).withRel("venues"));
 		event.add(linkTo(methodOn(ArtistController.class).getArtist(event.getArtistId())).withRel("artists"));
+		event.add(linkTo(methodOn(CategoryController.class).getCategory(event.getCategoryIds().get(0))).withRel("categories"));
 		return new ResponseEntity<>(event, HttpStatus.OK);
 	}
 
@@ -74,10 +77,11 @@ public class EventController {
 			@RequestParam(value = "description", required = true, defaultValue = "") String description,
 			@RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
 			@RequestParam(value = "venueId", required = true, defaultValue = "") int venueId,
-			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId) {
+			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId,
+			@RequestParam(value = "categoryId", required = true, defaultValue = "") int categoryId) {
 
 		Navigation navi = new Navigation();
-		int eventId = eventService.createEvent(title, description, startTime, venueId, artistId);
+		int eventId = eventService.createEvent(title, description, startTime, venueId, artistId, categoryId);
 		if (eventId > -1) {
 			navi.setContent("Event created");
 			addStandardNavigation(navi);
@@ -98,10 +102,11 @@ public class EventController {
 			@RequestParam(value = "description", required = true, defaultValue = "") String description,
 			@RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
 			@RequestParam(value = "venueId", required = true, defaultValue = "") int venueId,
-			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId) {
+			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId,
+			@RequestParam(value = "categoryId", required = true, defaultValue = "") int categoryId) {
 
 		Navigation navi = new Navigation();
-		boolean ok = eventService.updateEvent(id, title, description, startTime, venueId, artistId);
+		boolean ok = eventService.updateEvent(id, title, description, startTime, venueId, artistId, categoryId);
 		if (ok) {
 			navi.setContent("Event updated");
 			addStandardNavigation(navi);
@@ -140,13 +145,27 @@ public class EventController {
 		return new ResponseEntity<>(r, HttpStatus.OK);
 	}
 
+	@RequestMapping(value = "/events/{id}/categories", method = RequestMethod.GET)
+	public HttpEntity<GenericList<Category>> getCategoriesForEvents(@PathVariable("id") int id) {
+
+		GenericList<Category> cats = eventService.getCategoriesOfEvent(id);
+		cats.add(linkTo(methodOn(EventController.class).getEvents(id)).withRel("events"));
+		addStandardNavigation(cats);
+		if (cats != null) {
+			for (Category cat: cats.getList()) {
+				cats.add(linkTo(methodOn(CategoryController.class).getCategory(cat.getCategoryId())).withSelfRel());
+			}
+		}
+		return new ResponseEntity<>(cats, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/events", method = RequestMethod.GET)
 	public HttpEntity<Navigation> getEvents() {
 
 		Navigation navi = new Navigation("Operations for Events");
 		List<Event> events = eventService.getEvents();
 		navi.add(linkTo(methodOn(EventController.class).getEvents()).withSelfRel());
-		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0))
+		navi.add(linkTo(methodOn(EventController.class).createEvent("title", "description", "startTime", 0, 0, 0))
 				.withRel("create"));
 		if (events != null) {
 			for (Event event : events) {
