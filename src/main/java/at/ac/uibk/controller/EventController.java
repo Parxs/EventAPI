@@ -22,6 +22,7 @@ import at.ac.uibk.model.Category;
 import at.ac.uibk.model.Event;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Navigation;
+import at.ac.uibk.model.SchemaResponse;
 import at.ac.uibk.model.Venue;
 import at.ac.uibk.service.EventService;
 
@@ -46,13 +47,18 @@ public class EventController {
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 
 		}
+		SchemaResponse res = new SchemaResponse("ViewAction");
+		res.SetResult("Event", event);
+		res.setResultType("object");
+		addStandardNavigation(res);
+		res.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
+		res.add(linkTo(methodOn(VenueController.class).getVenue(event.getVenueId())).withRel("venues"));
+		res.add(linkTo(methodOn(ArtistController.class).getArtist(event.getArtistId())).withRel("artists"));
+		res.add(linkTo(methodOn(CategoryController.class).getCategory(event.getCategoryIds().get(0))).withRel("categories"));
+		//return new ResponseEntity<>(event, HttpStatus.OK);
 
-		addStandardNavigation(event);
-		event.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
-		event.add(linkTo(methodOn(VenueController.class).getVenue(event.getVenueId())).withRel("venues"));
-		event.add(linkTo(methodOn(ArtistController.class).getArtist(event.getArtistId())).withRel("artists"));
-		event.add(linkTo(methodOn(CategoryController.class).getCategory(event.getCategoryIds().get(0))).withRel("categories"));
-		return new ResponseEntity<>(event, HttpStatus.OK);
+		return new ResponseEntity<ResourceSupport>(res, HttpStatus.OK);
+		
 	}
 
 	@RequestMapping(value = "/events/{id}", method = RequestMethod.DELETE)
@@ -72,7 +78,7 @@ public class EventController {
 	}
 
 	@RequestMapping(value = "/events", method = RequestMethod.POST)
-	public HttpEntity<Navigation> createEvent(
+	public HttpEntity<ResourceSupport> createEvent(
 			@RequestParam(value = "title", required = true, defaultValue = "") String title,
 			@RequestParam(value = "description", required = true, defaultValue = "") String description,
 			@RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
@@ -80,15 +86,17 @@ public class EventController {
 			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId,
 			@RequestParam(value = "categoryId", required = true, defaultValue = "") int categoryId) {
 
-		Navigation navi = new Navigation();
 		int eventId = eventService.createEvent(title, description, startTime, venueId, artistId, categoryId);
 		if (eventId > -1) {
-			navi.setContent("Event created");
-			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(EventController.class).getEvents(eventId)).withSelfRel());
+			SchemaResponse res = new SchemaResponse("CreateAction");
+			res.SetResult("Event", eventService.getEvent(eventId));
+			res.setResultType("result");
+			addStandardNavigation(res);
+			res.add(linkTo(methodOn(EventController.class).getEvents(eventId)).withSelfRel());
 
-			return new ResponseEntity<>(navi, HttpStatus.OK);
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		} else {
+			Navigation navi = new Navigation();
 			navi.setContent("Failed to create Event");
 			addStandardNavigation(navi);
 
