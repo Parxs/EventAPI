@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import at.ac.uibk.model.Category;
 import at.ac.uibk.model.Navigation;
+import at.ac.uibk.model.SchemaResponse;
 import at.ac.uibk.service.CategoryService;
 
 @RestController
@@ -41,10 +42,12 @@ public class CategoryController {
 
 			return new ResponseEntity<>(categoryError, HttpStatus.NOT_FOUND);
 		}
-		cat.add(linkTo(methodOn(CategoryController.class).getCategories()).withRel("categories"));
-		cat.add(linkTo(methodOn(CategoryController.class).getCategory(id)).withSelfRel());
+		SchemaResponse res = new SchemaResponse("ViewAction");
+		res.SetResult("Category", cat);
+		res.add(linkTo(methodOn(CategoryController.class).getCategories()).withRel("categories"));
+		res.add(linkTo(methodOn(CategoryController.class).getCategory(id)).withSelfRel());
 
-		return new ResponseEntity<ResourceSupport>(cat, HttpStatus.OK);
+		return new ResponseEntity<ResourceSupport>(res, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/categories", method = RequestMethod.GET)
@@ -65,24 +68,25 @@ public class CategoryController {
 	}
 
 	@RequestMapping(value = "/categories", method = RequestMethod.POST)
-	public HttpEntity<Navigation> createCategory(
+	public HttpEntity<ResourceSupport> createCategory(
 			@RequestParam(value = "id", required = true, defaultValue = "1") int id,
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
 			@RequestParam(value = "identifier", required = true, defaultValue = "") String identifier,
 			@RequestParam(value = "description", required = true, defaultValue = "") String description) {
 
-		Navigation navi = new Navigation();
+		SchemaResponse res = new SchemaResponse("CreateAction");
 		categoryService.createCategory(id, name, identifier, description);
-		navi.setContent("Category created");
-		addStandardNavigation(navi);
-		navi.add(linkTo(methodOn(CategoryController.class).getCategory(id)).withSelfRel());
+		res.SetResult("Category", categoryService.getCategory(id));
+		addStandardNavigation(res);
+		res.add(linkTo(methodOn(CategoryController.class).getCategory(id)).withSelfRel());
 
-		return new ResponseEntity<>(navi, HttpStatus.OK);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 
 	}
 
 	@RequestMapping(value = "/categories/{id}", method = RequestMethod.DELETE)
-	public HttpEntity<Navigation> deleteCategories(@PathVariable("id") int id) {
+	public HttpEntity<ResourceSupport> deleteCategories(@PathVariable("id") int id) {
+		Category cat = categoryService.getCategory(id);
 		boolean ok = categoryService.deleteCategory(id);
 		if (!ok) {
 			Navigation navi = new Navigation("Category " + id + " not found");
@@ -90,28 +94,31 @@ public class CategoryController {
 			return new ResponseEntity<>(navi, HttpStatus.NOT_FOUND);
 
 		} else {
-			Navigation navi = new Navigation("Event " + id + " deleted");
-			addStandardNavigation(navi);
+			SchemaResponse res = new SchemaResponse("DeleteAction");
+			addStandardNavigation(res);
+			res.SetResult("Category", cat);
 
-			return new ResponseEntity<>(navi, HttpStatus.OK);
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		}
 	}
 
 	@RequestMapping(value = "/categories/{id}", method = RequestMethod.PUT)
-	public HttpEntity<Navigation> updateCategories(@PathVariable("id") int id,
+	public HttpEntity<ResourceSupport> updateCategories(@PathVariable("id") int id,
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
 			@RequestParam(value = "identifier", required = true, defaultValue = "") String identifier,
 			@RequestParam(value = "description", required = true, defaultValue = "") String description) {
 
-		Navigation navi = new Navigation();
 		boolean ok = categoryService.updateCategory(id, name, identifier, description);
 		if (ok) {
-			navi.setContent("Category updated");
-			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(CategoryController.class).getCategory(id)).withSelfRel());
+			SchemaResponse res = new SchemaResponse("UpdateAction");
+			res.SetResult("Category", categoryService.getCategory(id));
+			addStandardNavigation(res);
+			res.add(linkTo(methodOn(CategoryController.class).getCategory(id)).withSelfRel());
 
-			return new ResponseEntity<>(navi, HttpStatus.OK);
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		} else {
+			Navigation navi = new Navigation();
+
 			navi.setContent("Failed to updated Category");
 			addStandardNavigation(navi);
 

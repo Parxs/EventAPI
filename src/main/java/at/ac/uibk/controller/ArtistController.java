@@ -20,6 +20,7 @@ import at.ac.uibk.model.Artist;
 import at.ac.uibk.model.Event;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Navigation;
+import at.ac.uibk.model.SchemaResponse;
 import at.ac.uibk.service.ArtistService;
 
 @RestController
@@ -71,28 +72,32 @@ public class ArtistController {
 			Navigation eventError = new Navigation("Artist not found");
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 		}
-		addStandardNavigation(artist);
-		artist.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
-		artist.add(linkTo(methodOn(ArtistController.class).getAllEvents(id)).withRel("events.artist"));
+		SchemaResponse res = new SchemaResponse("ViewAction");
+		res.SetResult("Artist", artist);
+		addStandardNavigation(res);
+		res.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
+		res.add(linkTo(methodOn(ArtistController.class).getAllEvents(id)).withRel("events.artist"));
 
-		return new ResponseEntity<>(artist, HttpStatus.OK);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/artists", method = RequestMethod.POST)
-	public HttpEntity<Navigation> createArtist(
+	public HttpEntity<ResourceSupport> createArtist(
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
 			@RequestParam(value = "age", required = true, defaultValue = "") int age,
 			@RequestParam(value = "genre", required = true, defaultValue = "") String genre) {
 
-		Navigation navi = new Navigation();
 		int id = artistService.createArtist(name, age, genre);
 		if (-1 < id) {
-			navi.setContent("Artist created");
-			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withSelfRel());
+			SchemaResponse res = new SchemaResponse("CreateAction");
+			res.SetResult("Artist", artistService.getArtist(id));
+			addStandardNavigation(res);
+			res.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withSelfRel());
 
-			return new ResponseEntity<>(navi, HttpStatus.OK);
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		} else {
+			Navigation navi = new Navigation();
+
 			navi.setContent("Failed to create Artist");
 			addStandardNavigation(navi);
 
@@ -101,20 +106,22 @@ public class ArtistController {
 	}
 
 	@RequestMapping(value = "/artists/{id}", method = RequestMethod.PUT)
-	public HttpEntity<Navigation> updateArtist(@PathVariable("id") int id,
+	public HttpEntity<ResourceSupport> updateArtist(@PathVariable("id") int id,
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
 			@RequestParam(value = "age", required = true, defaultValue = "") int age,
 			@RequestParam(value = "genre", required = true, defaultValue = "") String genre) {
 
-		Navigation navi = new Navigation();
 		boolean ok = artistService.updateArtist(id, name, age, genre);
 		if (ok) {
-			navi.setContent("Artist updated");
-			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withSelfRel());
+			SchemaResponse res = new SchemaResponse("UpdateAction");
+			res.SetResult("Artist", artistService.getArtist(id));
+			addStandardNavigation(res);
+			res.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withSelfRel());
 
-			return new ResponseEntity<>(navi, HttpStatus.OK);
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		} else {
+			Navigation navi = new Navigation();
+
 			navi.setContent("Failed to update Artist");
 			addStandardNavigation(navi);
 			navi.add(linkTo(methodOn(ArtistController.class).getArtist(id)).withSelfRel());
@@ -125,17 +132,18 @@ public class ArtistController {
 
 	@RequestMapping(value = "/artists/{id}", method = RequestMethod.DELETE)
 	public HttpEntity<ResourceSupport> deleteArtist(@PathVariable("id") int id) {
-
+		Artist a = artistService.getArtist(id);
 		boolean ok = artistService.deleteArtist(id);
 		if (!ok) {
-			Navigation eventError = new Navigation("Artist not found");
-			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
+			Navigation navi = new Navigation("Artist not found");
+			return new ResponseEntity<>(navi, HttpStatus.NOT_FOUND);
 		}
-		Navigation navi = new Navigation("Artist " + id + " was deleted");
-		addStandardNavigation(navi);
-		navi.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
+		SchemaResponse res = new SchemaResponse("DeleteAction");
+		res.SetResult("Artist", a);
+		addStandardNavigation(res);
+		res.add(linkTo(methodOn(ArtistController.class).getArtists()).withSelfRel());
 
-		return new ResponseEntity<>(navi, HttpStatus.OK);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/artists/search", method = RequestMethod.GET)

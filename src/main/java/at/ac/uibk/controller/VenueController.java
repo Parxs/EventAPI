@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import at.ac.uibk.model.Artist;
 import at.ac.uibk.model.GenericList;
 import at.ac.uibk.model.Navigation;
+import at.ac.uibk.model.SchemaResponse;
 import at.ac.uibk.model.Venue;
 import at.ac.uibk.service.VenueService;
 
@@ -60,16 +61,18 @@ public class VenueController {
 			Navigation eventError = new Navigation("Venue not found");
 			return new ResponseEntity<>(eventError, HttpStatus.NOT_FOUND);
 		}
-		addStandardNavigation(venue);
-		venue.add(linkTo(methodOn(VenueController.class).getVenue(id)).withSelfRel());
-		venue.add(linkTo(methodOn(VenueController.class).getArtistsInVenue(id)).withRel("venues.artists"));
+		SchemaResponse res = new SchemaResponse("ViewAction");
+		res.SetResult("Venue", venue);
+		addStandardNavigation(res);
+		res.add(linkTo(methodOn(VenueController.class).getVenue(id)).withSelfRel());
+		res.add(linkTo(methodOn(VenueController.class).getArtistsInVenue(id)).withRel("venues.artists"));
 
-		return new ResponseEntity<>(venue, HttpStatus.OK);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/venues/{id}", method = RequestMethod.DELETE)
 	public HttpEntity<ResourceSupport> deleteVenue(@PathVariable("id") int id) {
-
+		Venue ven = venueService.getVenue(id);
 		boolean ok = venueService.deleteVenue(id);
 		if (!ok) {
 			Navigation navi = new Navigation("Venue " + id + " not found");
@@ -77,10 +80,11 @@ public class VenueController {
 			return new ResponseEntity<>(navi, HttpStatus.NOT_FOUND);
 
 		} else {
-			Navigation navi = new Navigation("Venue Deleted");
-			addStandardNavigation(navi);
+			SchemaResponse res = new SchemaResponse("DeleteAction");
+			res.SetResult("Venue", ven);;
+			addStandardNavigation(res);
 
-			return new ResponseEntity<>(navi, HttpStatus.OK);
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		}
 	}
 
@@ -122,22 +126,24 @@ public class VenueController {
 	}
 
 	@RequestMapping(value = "/venues/{id}", method = RequestMethod.PUT)
-	public HttpEntity<Navigation> updateVenue(@PathVariable("id") int id,
+	public HttpEntity<ResourceSupport> updateVenue(@PathVariable("id") int id,
 			@RequestParam(value = "name", required = true, defaultValue = "") String name,
 			@RequestParam(value = "country", required = true, defaultValue = "") String country,
 			@RequestParam(value = "city", required = true, defaultValue = "") String city,
 			@RequestParam(value = "address", required = true, defaultValue = "") String address,
 			@RequestParam(value = "size", required = true, defaultValue = "") String size) {
 
-		Navigation navi = new Navigation();
 		boolean ok = venueService.updateVenue(id, name, country, city, address, size);
 		if (ok) {
-			navi.setContent("Venue updated");
-			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(VenueController.class).getVenue(id)).withSelfRel());
+			SchemaResponse res = new SchemaResponse("UpdateAction");
+			res.SetResult("Venue", venueService.getArtistsInVenue(id));
+			addStandardNavigation(res);
+			res.add(linkTo(methodOn(VenueController.class).getVenue(id)).withSelfRel());
 
-			return new ResponseEntity<>(navi, HttpStatus.OK);
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		} else {
+			Navigation navi = new Navigation();
+
 			navi.setContent("Failed to update Venue");
 			addStandardNavigation(navi);
 

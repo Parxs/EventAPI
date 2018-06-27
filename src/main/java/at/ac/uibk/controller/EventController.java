@@ -49,7 +49,6 @@ public class EventController {
 		}
 		SchemaResponse res = new SchemaResponse("ViewAction");
 		res.SetResult("Event", event);
-		res.setResultType("object");
 		addStandardNavigation(res);
 		res.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
 		res.add(linkTo(methodOn(VenueController.class).getVenue(event.getVenueId())).withRel("venues"));
@@ -62,7 +61,8 @@ public class EventController {
 	}
 
 	@RequestMapping(value = "/events/{id}", method = RequestMethod.DELETE)
-	public HttpEntity<Navigation> deleteEvents(@PathVariable("id") int id) {
+	public HttpEntity<ResourceSupport> deleteEvents(@PathVariable("id") int id) {
+		Event event = eventService.getEvent(id);
 		boolean ok = eventService.deleteEvent(id);
 		if (!ok) {
 			Navigation navi = new Navigation("Event " + id + " not found");
@@ -70,10 +70,11 @@ public class EventController {
 			return new ResponseEntity<>(navi, HttpStatus.NOT_FOUND);
 
 		} else {
-			Navigation navi = new Navigation("Event " + id + " deleted");
-			addStandardNavigation(navi);
+			SchemaResponse res = new SchemaResponse("DeleteAction");
+			res.SetResult("Object", event);
+			addStandardNavigation(res);
 
-			return new ResponseEntity<>(navi, HttpStatus.OK);
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		}
 	}
 
@@ -90,7 +91,6 @@ public class EventController {
 		if (eventId > -1) {
 			SchemaResponse res = new SchemaResponse("CreateAction");
 			res.SetResult("Event", eventService.getEvent(eventId));
-			res.setResultType("result");
 			addStandardNavigation(res);
 			res.add(linkTo(methodOn(EventController.class).getEvents(eventId)).withSelfRel());
 
@@ -105,7 +105,7 @@ public class EventController {
 	}
 
 	@RequestMapping(value = "/events/{id}", method = RequestMethod.PUT)
-	public HttpEntity<Navigation> updateEvent(@PathVariable("id") int id,
+	public HttpEntity<ResourceSupport> updateEvent(@PathVariable("id") int id,
 			@RequestParam(value = "title", required = true, defaultValue = "") String title,
 			@RequestParam(value = "description", required = true, defaultValue = "") String description,
 			@RequestParam(value = "startTime", required = true, defaultValue = "") String startTime,
@@ -113,15 +113,17 @@ public class EventController {
 			@RequestParam(value = "artistId", required = true, defaultValue = "") int artistId,
 			@RequestParam(value = "categoryId", required = true, defaultValue = "") int categoryId) {
 
-		Navigation navi = new Navigation();
 		boolean ok = eventService.updateEvent(id, title, description, startTime, venueId, artistId, categoryId);
 		if (ok) {
-			navi.setContent("Event updated");
-			addStandardNavigation(navi);
-			navi.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
+			SchemaResponse res = new SchemaResponse("UpdateAction");
+			res.SetResult("Event", eventService.getEvent(id));
+			addStandardNavigation(res);
+			res.add(linkTo(methodOn(EventController.class).getEvents(id)).withSelfRel());
 
-			return new ResponseEntity<>(navi, HttpStatus.OK);
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		} else {
+			Navigation navi = new Navigation();
+
 			navi.setContent("Failed to updated Event");
 			addStandardNavigation(navi);
 
@@ -130,27 +132,31 @@ public class EventController {
 	}
 
 	@RequestMapping(value = "/events/{id}/artists", method = RequestMethod.GET)
-	public HttpEntity<Artist> getArtistForEvents(@PathVariable("id") int id) {
+	public HttpEntity<ResourceSupport> getArtistForEvents(@PathVariable("id") int id) {
 
 		Artist a = eventService.getArtistsOfEvent(id);
-		addStandardNavigation(a);
-		a.add(linkTo(methodOn(EventController.class).getEvents(id)).withRel("events"));
-		a.add(linkTo(methodOn(EventController.class).getArtistForEvents(id)).withSelfRel());
-		a.add(linkTo(methodOn(ArtistController.class).getArtist(a.getArtistId())).withRel("artists"));
+		SchemaResponse res = new SchemaResponse("ViewAction");
+		res.SetResult("Artist", a);
+		addStandardNavigation(res);
+		res.add(linkTo(methodOn(EventController.class).getEvents(id)).withRel("events"));
+		res.add(linkTo(methodOn(EventController.class).getArtistForEvents(id)).withSelfRel());
+		res.add(linkTo(methodOn(ArtistController.class).getArtist(a.getArtistId())).withRel("artists"));
 
-		return new ResponseEntity<>(a, HttpStatus.OK);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/events/{id}/venues", method = RequestMethod.GET)
-	public HttpEntity<Venue> getVenueForEvents(@PathVariable("id") int id) {
+	public HttpEntity<ResourceSupport> getVenueForEvents(@PathVariable("id") int id) {
 
 		Venue r = eventService.getVenueOfEvent(id);
-		r.add(linkTo(methodOn(EventController.class).getEvents(id)).withRel("events"));
-		addStandardNavigation(r);
-		r.add(linkTo(methodOn(EventController.class).getVenueForEvents(id)).withSelfRel());
-		r.add(linkTo(methodOn(VenueController.class).getVenue(r.getVenueId())).withRel("venues"));
+		SchemaResponse res = new SchemaResponse("ViewAction");
+		res.SetResult("Artist", r);
+		res.add(linkTo(methodOn(EventController.class).getEvents(id)).withRel("events"));
+		addStandardNavigation(res);
+		res.add(linkTo(methodOn(EventController.class).getVenueForEvents(id)).withSelfRel());
+		res.add(linkTo(methodOn(VenueController.class).getVenue(r.getVenueId())).withRel("venues"));
 
-		return new ResponseEntity<>(r, HttpStatus.OK);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/events/{id}/categories", method = RequestMethod.GET)
